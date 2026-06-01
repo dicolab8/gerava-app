@@ -72,6 +72,7 @@ const styles = StyleSheet.create({
     color: colors.white,
   },
   detailHeaderTitle: {
+    marginLeft: spacing.sm,
     fontSize: 17,
     fontWeight: 'bold',
     color: colors.white,

@@ -122,6 +122,7 @@ const styles = StyleSheet.create({
     color: colors.white,
   },
   detailHeaderTitle: {
+    marginLeft: spacing.sm,
     fontSize: 17,
     fontWeight: 'bold',
     color: colors.white,
@@ -180,6 +181,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: spacing.sm,
   },
   msgIconText: {
     fontSize: 20,
