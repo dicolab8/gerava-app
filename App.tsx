@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-gesture-handler';
+import { PreferencesProvider } from './src/contexts/PreferencesContext';
 
 // Telas
 import HomeScreen from './src/screens/HomeScreen';
@@ -46,33 +47,35 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <NavigationContainer>
-          <StatusBar style="light" />
+        <PreferencesProvider>
+          <NavigationContainer>
+            <StatusBar style="light" />
 
-          <Stack.Navigator
-            initialRouteName="Home"
-            screenOptions={{
-              headerShown: false,
-              animation: 'slide_from_right', // pode usar tranquilo
-            }}
-          >
-            <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen name="Details" component={DetailScreen} />
-            <Stack.Screen name="Messages" component={MessagesScreen} />
-            <Stack.Screen name="Search" component={SearchScreen} />
-            <Stack.Screen name="Settings" component={SettingsScreen} />
-            <Stack.Screen name="Theme" component={ThemeScreen} />
-            <Stack.Screen name="Module" component={ModuleScreen} />
-            <Stack.Screen name="Filters" component={FiltersScreen} />
-            <Stack.Screen name="Favorites" component={FavoritesScreen} />
-            <Stack.Screen name="Feedback" component={FeedbackScreen} />
-            <Stack.Screen name="Success" component={SuccessScreen} />
-            <Stack.Screen name="Calendar" component={CalendarScreen} />
-            <Stack.Screen name="EmptyState" component={EmptyStateScreen} />
-            <Stack.Screen name="About" component={AboutScreen} />
-          </Stack.Navigator>
+            <Stack.Navigator
+              initialRouteName="Home"
+              screenOptions={{
+                headerShown: false,
+                animation: 'slide_from_right', // pode usar tranquilo
+              }}
+            >
+              <Stack.Screen name="Home" component={HomeScreen} />
+              <Stack.Screen name="Details" component={DetailScreen} />
+              <Stack.Screen name="Messages" component={MessagesScreen} />
+              <Stack.Screen name="Search" component={SearchScreen} />
+              <Stack.Screen name="Settings" component={SettingsScreen} />
+              <Stack.Screen name="Theme" component={ThemeScreen} />
+              <Stack.Screen name="Module" component={ModuleScreen} />
+              <Stack.Screen name="Filters" component={FiltersScreen} />
+              <Stack.Screen name="Favorites" component={FavoritesScreen} />
+              <Stack.Screen name="Feedback" component={FeedbackScreen} />
+              <Stack.Screen name="Success" component={SuccessScreen} />
+              <Stack.Screen name="Calendar" component={CalendarScreen} />
+              <Stack.Screen name="EmptyState" component={EmptyStateScreen} />
+              <Stack.Screen name="About" component={AboutScreen} />
+            </Stack.Navigator>
 
-        </NavigationContainer>
+          </NavigationContainer>
+        </PreferencesProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

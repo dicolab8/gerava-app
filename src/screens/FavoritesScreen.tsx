@@ -10,6 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
+import { AppIcon, BottomNav } from '../components/NavigationElements';
 import { api } from '../services/api';
 import { Evaluation } from '../types';
 import { colors, spacing, borderRadius } from '../theme';
@@ -40,7 +41,7 @@ export default function FavoritesScreen() {
             onPress={() => navigation.navigate('Details', { evaluationId: fav.id.toString() })}
           >
             <View style={styles.favIcon}>
-              <Text style={styles.favIconText}>📋</Text>
+              <AppIcon name="note" color={colors.accent} size={21} />
             </View>
             <View style={styles.favText}>
               <Text style={styles.favTitle}>{fav.disciplina_nome}</Text>
@@ -48,38 +49,19 @@ export default function FavoritesScreen() {
                 {new Date(fav.data).toLocaleDateString('pt-BR')} · {fav.modulo_nome} · {fav.professor_nome}
               </Text>
             </View>
-            <Text style={styles.favStar}>★</Text>
+            <AppIcon name="favorite" color={colors.accent} size={22} />
           </TouchableOpacity>
         ))}
 
         <View style={styles.infoBox}>
+          <AppIcon name="favorite" color={colors.accent} size={24} />
           <Text style={styles.infoText}>
-            Toque em ★ em qualquer avaliação para adicioná-la aos favoritos.
+            Toque no marcador de favorito em qualquer avaliação para salvá-la aqui.
           </Text>
         </View>
       </ScrollView>
 
-      <View style={styles.bottomNav}>
-        {['🏠', '📅', '⭐', 'ℹ️'].map((icon, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.bottomNavItem}
-            onPress={() => {
-              if (index === 0) navigation.navigate('Home');
-              if (index === 1) navigation.navigate('Calendar');
-              if (index === 2) navigation.navigate('Favorites');
-              if (index === 3) navigation.navigate('About');
-            }}
-          >
-            <Text style={[styles.bottomNavIcon, index === 2 && styles.bottomNavIconActive]}>
-              {icon}
-            </Text>
-            <Text style={[styles.bottomNavLabel, index === 2 && styles.bottomNavLabelActive]}>
-              {['Início', 'Calendário', 'Favoritos', 'Sobre'][index]}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      <BottomNav active="Favorites" />
     </SafeAreaView>
   );
 }
@@ -135,11 +117,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  favIconText: {
-    fontSize: 20,
-  },
   favText: {
     flex: 1,
+    marginHorizontal: spacing.sm,
   },
   favTitle: {
     fontSize: 13,
@@ -150,10 +130,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: colors.text3,
     marginTop: 2,
-  },
-  favStar: {
-    fontSize: 18,
-    color: colors.accent,
   },
   infoBox: {
     backgroundColor: colors.surface2,
@@ -167,39 +143,6 @@ const styles = StyleSheet.create({
     color: colors.text3,
     textAlign: 'center',
     lineHeight: 19,
-  },
-  bottomNav: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: colors.surface,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    flexDirection: 'row',
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.md,
-  },
-  bottomNavItem: {
-    flex: 1,
-    alignItems: 'center',
-    //gap: 3,
-  },
-  bottomNavIcon: {
-    fontSize: 22,
-    color: colors.text3,
-  },
-  bottomNavIconActive: {
-    color: colors.primaryLight,
-  },
-  bottomNavLabel: {
-    fontSize: 10,
-    fontWeight: '500',
-    color: colors.text3,
-  },
-  bottomNavLabelActive: {
-    color: colors.primaryLight,
-    fontWeight: 'bold',
+    marginTop: spacing.sm,
   },
 });

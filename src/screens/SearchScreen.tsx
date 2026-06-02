@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -12,33 +12,64 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
-import { api } from '../services/api';
+import { AppIcon, ChevronIcon } from '../components/NavigationElements';
+import { api, normalizeApiList } from '../services/api';
 import { Evaluation } from '../types';
 import { colors, spacing, borderRadius } from '../theme';
 
 type SearchScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Search'>;
 
+const normalizeText = (value?: string | number) =>
+  String(value ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+
 export default function SearchScreen() {
   const navigation = useNavigation<SearchScreenNavigationProp>();
   const [searchQuery, setSearchQuery] = useState('');
+  const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
   const [searchResults, setSearchResults] = useState<Evaluation[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const performSearch = async (text: string) => {
+  useEffect(() => {
+    fetchEvaluations();
+  }, []);
+
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      performSearch(searchQuery);
+    }
+  }, [evaluations]);
+
+  const fetchEvaluations = async () => {
+    try {
+      setIsLoading(true);
+      const data = await api.get('/avaliacoes');
+      setEvaluations(normalizeApiList<Evaluation>(data));
+    } catch (error) {
+      console.error('Erro ao carregar dados para busca:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const performSearch = (text: string) => {
     if (!text.trim()) {
       setSearchResults([]);
       return;
     }
 
-    try {
-      setIsLoading(true);
-      const data = await api.get(`/avaliacoes?search=${encodeURIComponent(text)}`);
-      setSearchResults(Array.isArray(data) ? data : data.data || []);
-    } catch (error) {
-      console.error('Erro na busca:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    const term = normalizeText(text);
+    setSearchResults(
+      evaluations.filter((evaluation) =>
+        normalizeText([
+          evaluation.disciplina_nome,
+          evaluation.professor_nome,
+          evaluation.modulo_nome,
+        ].join(' ')).includes(term)
+      )
+    );
   };
 
   const handleSearch = (text: string) => {
@@ -78,8 +109,14 @@ export default function SearchScreen() {
         </View>
       </View>
       <View style={styles.cardMeta}>
-        <Text style={styles.metaText}>👨‍🏫 {item.professor_nome}</Text>
-        <Text style={styles.metaText}>📅 {new Date(item.data).toLocaleDateString('pt-BR')}</Text>
+        <View style={styles.metaRow}>
+          <AppIcon name="user" color={colors.text3} size={15} />
+          <Text style={styles.metaText}>{item.professor_nome}</Text>
+        </View>
+        <View style={styles.metaRow}>
+          <AppIcon name="calendar" color={colors.text3} size={15} />
+          <Text style={styles.metaText}>{new Date(item.data).toLocaleDateString('pt-BR')}</Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -88,14 +125,14 @@ export default function SearchScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.appHeader}>
         <Text style={styles.appHeaderTitle}>Buscar</Text>
-        <TouchableOpacity style={styles.headerIcon}>
-          <Text style={styles.headerIconText}>→</Text>
+        <TouchableOpacity style={styles.headerIcon} onPress={() => navigation.goBack()}>
+          <ChevronIcon direction="right" color={colors.white} size={16} />
         </TouchableOpacity>
       </View>
 
       <View style={[styles.searchWrap, styles.searchActive]}>
         <View style={[styles.searchBar, styles.searchBarActive]}>
-          <Text style={styles.searchIcon}>🔍</Text>
+          <AppIcon name="search" color={colors.primaryLight} size={18} />
           <TextInput
             style={styles.searchInput}
             placeholder="endócrino"
@@ -105,7 +142,7 @@ export default function SearchScreen() {
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity onPress={() => handleSearch('')}>
-              <Text style={styles.clearIcon}>✕</Text>
+              <AppIcon name="close" color={colors.text3} size={18} />
             </TouchableOpacity>
           )}
         </View>
@@ -130,7 +167,9 @@ export default function SearchScreen() {
             </View>
           ) : searchQuery ? (
             <View style={styles.emptyState}>
-              <Text style={styles.emptyIcon}>🔍</Text>
+              <View style={styles.emptyIcon}>
+                <AppIcon name="search" color={colors.primaryLight} size={36} />
+              </View>
               <Text style={styles.emptyTitle}>Nenhum resultado encontrado</Text>
               <Text style={styles.emptySub}>Tente buscar por outro termo</Text>
             </View>
@@ -180,10 +219,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerIconText: {
-    fontSize: 18,
-    color: colors.white,
-  },
   searchWrap: {
     padding: spacing.md,
     backgroundColor: colors.surface,
@@ -207,17 +242,11 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: colors.primaryLight,
   },
-  searchIcon: {
-    fontSize: 18,
-  },
   searchInput: {
     flex: 1,
     fontSize: 14,
     color: colors.primary,
-  },
-  clearIcon: {
-    fontSize: 16,
-    color: colors.text3,
+    marginLeft: 10,
   },
   listContent: {
     paddingBottom: 20,
@@ -287,9 +316,15 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
     //gap: 4,
   },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 3,
+  },
   metaText: {
     fontSize: 12,
     color: colors.text2,
+    marginLeft: 6,
   },
   emptyState: {
     alignItems: 'center',
@@ -297,7 +332,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
   },
   emptyIcon: {
-    fontSize: 48,
+    width: 72,
+    height: 72,
+    borderRadius: borderRadius.lg,
+    backgroundColor: '#EFF6FF',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: spacing.md,
   },
   emptyTitle: {
@@ -349,4 +389,4 @@ const styles = StyleSheet.create({
     color: colors.text3,
     fontSize: 14,
   },
-});
+});

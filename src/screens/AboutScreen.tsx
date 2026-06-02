@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import React from 'react';
 import {
   View,
@@ -7,116 +8,111 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../App';
+import { AppIcon, AppIconName, BottomNav, ChevronIcon } from '../components/NavigationElements';
 import { colors, spacing, borderRadius } from '../theme';
 
-type AboutScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'About'>;
+const stats = [
+  { label: 'Avaliações', value: '148' },
+  { label: 'Módulos', value: '12' },
+  { label: 'Professores', value: '31' },
+];
+
+const infoRows: { label: string; value: string; icon: AppIconName; tone: string }[] = [
+  { label: 'Versão do aplicativo', value: '2.1.0 (build 84)', icon: 'phone', tone: colors.primaryLight },
+  { label: 'Última atualização', value: '10 de março de 2025', icon: 'refresh', tone: colors.info },
+  { label: 'Instituição', value: 'UNIFOA - Campus Olezio Galotti', icon: 'school', tone: colors.success },
+  { label: 'Contato / suporte', value: 'gerava@unifoa.edu.br', icon: 'mail', tone: colors.accent },
+];
 
 export default function AboutScreen() {
-  const navigation = useNavigation<AboutScreenNavigationProp>();
-
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
         <View style={styles.hero}>
-          <View style={styles.logo}>
-            <Text style={styles.logoText}>G</Text>
+          <View style={styles.logoRow}>
+            <View style={styles.logo}>
+              <Text style={styles.logoText}>G</Text>
+            </View>
+            <View style={styles.heroText}>
+              <Text style={styles.appName}>GERAVA</Text>
+              <Text style={styles.version}>Gerenciamento de Avaliações</Text>
+            </View>
           </View>
-          <Text style={styles.appName}>GERAVA</Text>
-          <Text style={styles.version}>Gerenciamento de Avaliações · v2.1.0</Text>
-          
+
+          <Text style={styles.heroDescription}>
+            Consulta rápida e organizada para acompanhar avaliações acadêmicas,
+            datas, horários, professores e laboratórios.
+          </Text>
+
           <View style={styles.stats}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>148</Text>
-              <Text style={styles.statLabel}>Avaliações</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>12</Text>
-              <Text style={styles.statLabel}>Módulos</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>31</Text>
-              <Text style={styles.statLabel}>Professores</Text>
-            </View>
+            {stats.map((stat, index) => (
+              <View
+                key={stat.label}
+                style={[
+                  styles.statItem,
+                  index === stats.length - 1 && styles.statItemLast,
+                ]}
+              >
+                <Text style={styles.statNumber}>{stat.value}</Text>
+                <Text style={styles.statLabel}>{stat.label}</Text>
+              </View>
+            ))}
           </View>
         </View>
 
         <View style={styles.content}>
-          <View style={styles.descriptionBox}>
-            <Text style={styles.description}>
-              O GERAVA é o sistema oficial de consulta de avaliações acadêmicas, permitindo que os alunos acompanhem datas, horários e laboratórios das provas.
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Informações do sistema</Text>
+            <View style={styles.sectionPill}>
+              <Text style={styles.sectionPillText}>v2.1.0</Text>
+            </View>
+          </View>
+
+          <View style={styles.infoCard}>
+            {infoRows.map((row, index) => (
+              <View
+                key={row.label}
+                style={[
+                  styles.infoRow,
+                  index === infoRows.length - 1 && styles.infoRowLast,
+                ]}
+              >
+                <View style={[styles.infoIcon, { backgroundColor: `${row.tone}1A` }]}>
+                  <AppIcon name={row.icon} color={row.tone} size={21} />
+                </View>
+                <View style={styles.infoContent}>
+                  <Text style={styles.infoLabel}>{row.label}</Text>
+                  <Text style={styles.infoValue}>{row.value}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
+
+          <TouchableOpacity style={styles.privacyCard} activeOpacity={0.72}>
+            <View style={styles.privacyIcon}>
+              <AppIcon name="privacy" color={colors.primaryLight} size={22} />
+            </View>
+            <View style={styles.privacyText}>
+              <Text style={styles.privacyTitle}>Política de privacidade</Text>
+              <Text style={styles.privacySub}>Veja como os dados do app são tratados.</Text>
+            </View>
+            <ChevronIcon direction="right" color={colors.text3} size={14} />
+          </TouchableOpacity>
+
+          <View style={styles.noteCard}>
+            <AppIcon name="info" color={colors.primaryLight} size={22} />
+            <Text style={styles.noteText}>
+              Feito para estudantes acompanharem sua rotina acadêmica com menos
+              ruído e mais previsibilidade.
             </Text>
           </View>
-
-          <Text style={styles.sectionTitle}>Informações do sistema</Text>
-          
-          <View style={styles.infoRow}>
-            <Text style={styles.infoIcon}>📱</Text>
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Versão do aplicativo</Text>
-              <Text style={styles.infoValue}>2.1.0 (build 84)</Text>
-            </View>
-          </View>
-          
-          <View style={styles.infoRow}>
-            <Text style={styles.infoIcon}>🔄</Text>
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Última atualização</Text>
-              <Text style={styles.infoValue}>10 de março de 2025</Text>
-            </View>
-          </View>
-          
-          <View style={styles.infoRow}>
-            <Text style={styles.infoIcon}>🏫</Text>
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Instituição</Text>
-              <Text style={styles.infoValue}>UNIFOA – Campus Olezio Galotti</Text>
-            </View>
-          </View>
-          
-          <View style={styles.infoRow}>
-            <Text style={styles.infoIcon}>✉️</Text>
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Contato / suporte</Text>
-              <Text style={styles.infoValue}>gerava@unifoa.edu.br</Text>
-            </View>
-          </View>
-          
-          <TouchableOpacity style={styles.infoRow}>
-            <Text style={styles.infoIcon}>⚖️</Text>
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Política de privacidade</Text>
-              <Text style={[styles.infoValue, styles.link]}>Ver documento →</Text>
-            </View>
-          </TouchableOpacity>
         </View>
-
-        <Text style={styles.footer}>Feito com 🎓 para estudantes de medicina</Text>
       </ScrollView>
 
-      <View style={styles.bottomNav}>
-        {['🏠', '📅', '⭐', 'ℹ️'].map((icon, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.bottomNavItem}
-            onPress={() => {
-              if (index === 0) navigation.navigate('Home');
-              if (index === 1) navigation.navigate('Calendar');
-              if (index === 2) navigation.navigate('Favorites');
-              if (index === 3) navigation.navigate('About');
-            }}
-          >
-            <Text style={[styles.bottomNavIcon, index === 3 && styles.bottomNavIconActive]}>
-              {icon}
-            </Text>
-            <Text style={[styles.bottomNavLabel, index === 3 && styles.bottomNavLabelActive]}>
-              {['Início', 'Calendário', 'Favoritos', 'Sobre'][index]}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      <BottomNav active="About" />
     </SafeAreaView>
   );
 }
@@ -124,147 +120,508 @@ export default function AboutScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.bg,
+  },
+  scrollContent: {
+    paddingBottom: 88,
   },
   hero: {
     backgroundColor: colors.primary,
-    padding: spacing.xl,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.lg,
+  },
+  logoRow: {
+    flexDirection: 'row',
     alignItems: 'center',
   },
   logo: {
-    width: 70,
-    height: 70,
+    width: 64,
+    height: 64,
     backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 22,
+    borderRadius: borderRadius.lg,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.md,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.22)',
   },
   logoText: {
     fontFamily: 'System',
-    fontSize: 26,
-    fontWeight: '600',
+    fontSize: 28,
+    fontWeight: '700',
     color: colors.white,
+  },
+  heroText: {
+    marginLeft: spacing.md,
+    flex: 1,
   },
   appName: {
     fontFamily: 'System',
-    fontSize: 24,
-    fontWeight: '600',
+    fontSize: 25,
+    fontWeight: '700',
     color: colors.white,
   },
   version: {
     fontSize: 12,
-    color: 'rgba(255,255,255,0.6)',
-    marginTop: spacing.xs,
+    color: 'rgba(255,255,255,0.72)',
+    marginTop: 2,
+  },
+  heroDescription: {
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.82)',
+    lineHeight: 20,
+    marginTop: spacing.md,
   },
   stats: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    //gap: spacing.xl,
     marginTop: spacing.lg,
   },
   statItem: {
+    flex: 1,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    borderRadius: borderRadius.md,
+    paddingVertical: spacing.sm,
     alignItems: 'center',
+    marginRight: spacing.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.14)',
+  },
+  statItemLast: {
+    marginRight: 0,
   },
   statNumber: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
     color: colors.white,
   },
   statLabel: {
-    fontSize: 11,
-    color: 'rgba(255,255,255,0.8)',
+    fontSize: 10,
+    color: 'rgba(255,255,255,0.76)',
     marginTop: 2,
   },
   content: {
-    padding: spacing.lg,
-  },
-  descriptionBox: {
-    backgroundColor: colors.surface2,
-    borderRadius: borderRadius.lg,
     padding: spacing.md,
-    marginBottom: spacing.lg,
   },
-  description: {
-    fontSize: 12,
-    color: colors.text2,
-    lineHeight: 20,
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.sm,
   },
   sectionTitle: {
     fontSize: 11,
     fontWeight: 'bold',
     color: colors.text3,
     textTransform: 'uppercase',
-    marginBottom: spacing.sm,
+  },
+  sectionPill: {
+    backgroundColor: '#EFF6FF',
+    borderRadius: 999,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3,
+  },
+  sectionPillText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.primaryLight,
+  },
+  infoCard: {
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    overflow: 'hidden',
   },
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    //gap: spacing.md,
-    paddingVertical: spacing.sm,
+    padding: spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
+  infoRowLast: {
+    borderBottomWidth: 0,
+  },
   infoIcon: {
-    fontSize: 20,
-    width: 32,
-    textAlign: 'center',
+    width: 38,
+    height: 38,
+    borderRadius: borderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.sm,
   },
   infoContent: {
     flex: 1,
   },
   infoLabel: {
-    fontSize: 13,
-    color: colors.text2,
+    fontSize: 12,
+    color: colors.text3,
   },
   infoValue: {
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: '700',
     color: colors.text,
-    marginTop: 1,
+    marginTop: 2,
   },
-  link: {
-    color: colors.primaryLight,
+  privacyCard: {
+    marginTop: spacing.md,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  footer: {
-    textAlign: 'center',
+  privacyIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: borderRadius.md,
+    backgroundColor: '#EFF6FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.sm,
+  },
+  privacyText: {
+    flex: 1,
+  },
+  privacyTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  privacySub: {
     fontSize: 11,
     color: colors.text3,
+    marginTop: 2,
+  },
+  noteCard: {
+    marginTop: spacing.md,
+    backgroundColor: '#EFF6FF',
+    borderRadius: borderRadius.lg,
     padding: spacing.md,
-    marginBottom: 60,
-  },
-  bottomNav: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: colors.surface,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
     flexDirection: 'row',
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.md,
+    alignItems: 'flex-start',
   },
-  bottomNavItem: {
+  noteText: {
     flex: 1,
-    alignItems: 'center',
-    //gap: 3,
-  },
-  bottomNavIcon: {
-    fontSize: 22,
-    color: colors.text3,
-  },
-  bottomNavIconActive: {
-    color: colors.primaryLight,
-  },
-  bottomNavLabel: {
-    fontSize: 10,
-    fontWeight: '500',
-    color: colors.text3,
-  },
-  bottomNavLabelActive: {
-    color: colors.primaryLight,
-    fontWeight: 'bold',
+    fontSize: 12,
+    color: colors.text2,
+    lineHeight: 19,
+    marginLeft: spacing.sm,
   },
 });
+=======
+import React from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { AppIcon, AppIconName, BottomNav, ChevronIcon } from '../components/NavigationElements';
+import { colors, spacing, borderRadius } from '../theme';
+
+const stats = [
+  { label: 'Avaliações', value: '148' },
+  { label: 'Módulos', value: '12' },
+  { label: 'Professores', value: '31' },
+];
+
+const infoRows: { label: string; value: string; icon: AppIconName; tone: string }[] = [
+  { label: 'Versão do aplicativo', value: '2.1.0 (build 84)', icon: 'phone', tone: colors.primaryLight },
+  { label: 'Última atualização', value: '10 de março de 2025', icon: 'refresh', tone: colors.info },
+  { label: 'Instituição', value: 'UNIFOA - Campus Olezio Galotti', icon: 'school', tone: colors.success },
+  { label: 'Contato / suporte', value: 'gerava@unifoa.edu.br', icon: 'mail', tone: colors.accent },
+];
+
+export default function AboutScreen() {
+  return (
+    <SafeAreaView style={styles.container}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        <View style={styles.hero}>
+          <View style={styles.logoRow}>
+            <View style={styles.logo}>
+              <Text style={styles.logoText}>G</Text>
+            </View>
+            <View style={styles.heroText}>
+              <Text style={styles.appName}>GERAVA</Text>
+              <Text style={styles.version}>Gerenciamento de Avaliações</Text>
+            </View>
+          </View>
+
+          <Text style={styles.heroDescription}>
+            Consulta rápida e organizada para acompanhar avaliações acadêmicas,
+            datas, horários, professores e laboratórios.
+          </Text>
+
+          <View style={styles.stats}>
+            {stats.map((stat, index) => (
+              <View
+                key={stat.label}
+                style={[
+                  styles.statItem,
+                  index === stats.length - 1 && styles.statItemLast,
+                ]}
+              >
+                <Text style={styles.statNumber}>{stat.value}</Text>
+                <Text style={styles.statLabel}>{stat.label}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.content}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Informações do sistema</Text>
+            <View style={styles.sectionPill}>
+              <Text style={styles.sectionPillText}>v2.1.0</Text>
+            </View>
+          </View>
+
+          <View style={styles.infoCard}>
+            {infoRows.map((row, index) => (
+              <View
+                key={row.label}
+                style={[
+                  styles.infoRow,
+                  index === infoRows.length - 1 && styles.infoRowLast,
+                ]}
+              >
+                <View style={[styles.infoIcon, { backgroundColor: `${row.tone}1A` }]}>
+                  <AppIcon name={row.icon} color={row.tone} size={21} />
+                </View>
+                <View style={styles.infoContent}>
+                  <Text style={styles.infoLabel}>{row.label}</Text>
+                  <Text style={styles.infoValue}>{row.value}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
+
+          <TouchableOpacity style={styles.privacyCard} activeOpacity={0.72}>
+            <View style={styles.privacyIcon}>
+              <AppIcon name="privacy" color={colors.primaryLight} size={22} />
+            </View>
+            <View style={styles.privacyText}>
+              <Text style={styles.privacyTitle}>Política de privacidade</Text>
+              <Text style={styles.privacySub}>Veja como os dados do app são tratados.</Text>
+            </View>
+            <ChevronIcon direction="right" color={colors.text3} size={14} />
+          </TouchableOpacity>
+
+          <View style={styles.noteCard}>
+            <AppIcon name="info" color={colors.primaryLight} size={22} />
+            <Text style={styles.noteText}>
+              Feito para estudantes acompanharem sua rotina acadêmica com menos
+              ruído e mais previsibilidade.
+            </Text>
+          </View>
+        </View>
+      </ScrollView>
+
+      <BottomNav active="About" />
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.bg,
+  },
+  scrollContent: {
+    paddingBottom: 88,
+  },
+  hero: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.lg,
+  },
+  logoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  logo: {
+    width: 64,
+    height: 64,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderRadius: borderRadius.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.22)',
+  },
+  logoText: {
+    fontFamily: 'System',
+    fontSize: 28,
+    fontWeight: '700',
+    color: colors.white,
+  },
+  heroText: {
+    marginLeft: spacing.md,
+    flex: 1,
+  },
+  appName: {
+    fontFamily: 'System',
+    fontSize: 25,
+    fontWeight: '700',
+    color: colors.white,
+  },
+  version: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.72)',
+    marginTop: 2,
+  },
+  heroDescription: {
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.82)',
+    lineHeight: 20,
+    marginTop: spacing.md,
+  },
+  stats: {
+    flexDirection: 'row',
+    marginTop: spacing.lg,
+  },
+  statItem: {
+    flex: 1,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    borderRadius: borderRadius.md,
+    paddingVertical: spacing.sm,
+    alignItems: 'center',
+    marginRight: spacing.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.14)',
+  },
+  statItemLast: {
+    marginRight: 0,
+  },
+  statNumber: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: colors.white,
+  },
+  statLabel: {
+    fontSize: 10,
+    color: 'rgba(255,255,255,0.76)',
+    marginTop: 2,
+  },
+  content: {
+    padding: spacing.md,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.sm,
+  },
+  sectionTitle: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: colors.text3,
+    textTransform: 'uppercase',
+  },
+  sectionPill: {
+    backgroundColor: '#EFF6FF',
+    borderRadius: 999,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3,
+  },
+  sectionPillText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.primaryLight,
+  },
+  infoCard: {
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    overflow: 'hidden',
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  infoRowLast: {
+    borderBottomWidth: 0,
+  },
+  infoIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: borderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.sm,
+  },
+  infoContent: {
+    flex: 1,
+  },
+  infoLabel: {
+    fontSize: 12,
+    color: colors.text3,
+  },
+  infoValue: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.text,
+    marginTop: 2,
+  },
+  privacyCard: {
+    marginTop: spacing.md,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  privacyIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: borderRadius.md,
+    backgroundColor: '#EFF6FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.sm,
+  },
+  privacyText: {
+    flex: 1,
+  },
+  privacyTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  privacySub: {
+    fontSize: 11,
+    color: colors.text3,
+    marginTop: 2,
+  },
+  noteCard: {
+    marginTop: spacing.md,
+    backgroundColor: '#EFF6FF',
+    borderRadius: borderRadius.lg,
+    padding: spacing.md,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  noteText: {
+    flex: 1,
+    fontSize: 12,
+    color: colors.text2,
+    lineHeight: 19,
+    marginLeft: spacing.sm,
+  },
+});
+>>>>>>> Stashed changes

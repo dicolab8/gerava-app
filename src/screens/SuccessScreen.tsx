@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
+import { AppIcon, HeaderBackButton } from '../components/NavigationElements';
 import { colors, spacing, borderRadius } from '../theme';
 
 type SuccessScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Success'>;
@@ -19,16 +20,16 @@ export default function SuccessScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.detailHeader}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Text style={styles.backIcon}>←</Text>
-        </TouchableOpacity>
+        <HeaderBackButton onPress={() => navigation.goBack()} />
         <Text style={styles.detailHeaderTitle}>Enviar Feedback</Text>
       </View>
 
       <View style={styles.content}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalSheet}>
-            <Text style={styles.modalIcon}>✅</Text>
+            <View style={styles.modalIcon}>
+              <AppIcon name="check" color={colors.white} size={38} />
+            </View>
             <Text style={styles.modalTitle}>Feedback enviado!</Text>
             <Text style={styles.modalSub}>
               Obrigado pela sua contribuição. Sua mensagem foi recebida e será analisada pela equipe do GERAVA.
@@ -59,20 +60,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     //gap: spacing.md,
   },
-  backBtn: {
-    width: 36,
-    height: 36,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: borderRadius.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  backIcon: {
-    fontSize: 20,
-    color: colors.white,
-  },
   detailHeaderTitle: {
+<<<<<<< Updated upstream
+    marginLeft: spacing.sm,
     fontSize: 17,
+=======
+    marginLeft: spacing.sm,
+    fontSize: 17,
+>>>>>>> Stashed changes
     fontWeight: 'bold',
     color: colors.white,
   },
@@ -97,7 +92,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalIcon: {
-    fontSize: 48,
+    width: 76,
+    height: 76,
+    borderRadius: 24,
+    backgroundColor: colors.success,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: spacing.md,
   },
   modalTitle: {

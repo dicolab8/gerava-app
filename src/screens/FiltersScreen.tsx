@@ -11,6 +11,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
+import { AppIcon, HeaderBackButton } from '../components/NavigationElements';
+import { usePreferences } from '../contexts/PreferencesContext';
 import { api } from '../services/api';
 import { colors, spacing, borderRadius } from '../theme';
 
@@ -30,9 +32,10 @@ const periodOptions: FilterOption[] = [
 
 export default function FiltersScreen() {
   const navigation = useNavigation<FiltersScreenNavigationProp>();
-  const [selectedPeriod, setSelectedPeriod] = useState('all');
-  const [selectedProfessor, setSelectedProfessor] = useState('all');
-  const [selectedLab, setSelectedLab] = useState('all');
+  const { preferences, updateFilters, resetFilters } = usePreferences();
+  const [selectedPeriod, setSelectedPeriod] = useState(preferences.filters.period);
+  const [selectedProfessor, setSelectedProfessor] = useState(preferences.filters.professorId);
+  const [selectedLab, setSelectedLab] = useState(preferences.filters.labId);
 
   const [professorOptions, setProfessorOptions] = useState<FilterOption[]>([{ id: 'all', label: 'Todos os professores' }]);
   const [labOptions, setLabOptions] = useState<FilterOption[]>([{ id: 'all', label: 'Todos os laboratórios' }]);
@@ -41,6 +44,12 @@ export default function FiltersScreen() {
   useEffect(() => {
     fetchFilterOptions();
   }, []);
+
+  useEffect(() => {
+    setSelectedPeriod(preferences.filters.period);
+    setSelectedProfessor(preferences.filters.professorId);
+    setSelectedLab(preferences.filters.labId);
+  }, [preferences.filters]);
 
   const fetchFilterOptions = async () => {
     try {
@@ -72,22 +81,31 @@ export default function FiltersScreen() {
     }
   };
 
-  const handleApply = () => {
+  const handleApply = async () => {
+    const professor = professorOptions.find((option) => option.id === selectedProfessor);
+    const lab = labOptions.find((option) => option.id === selectedLab);
+
+    await updateFilters({
+      period: selectedPeriod,
+      professorId: selectedProfessor,
+      professorName: selectedProfessor === 'all' ? null : professor?.label || null,
+      labId: selectedLab,
+      labName: selectedLab === 'all' ? null : lab?.label || null,
+    });
     navigation.goBack();
   };
 
-  const handleClear = () => {
+  const handleClear = async () => {
     setSelectedPeriod('all');
     setSelectedProfessor('all');
     setSelectedLab('all');
+    await resetFilters();
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.detailHeader}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Text style={styles.backIcon}>←</Text>
-        </TouchableOpacity>
+        <HeaderBackButton onPress={() => navigation.goBack()} />
         <Text style={styles.detailHeaderTitle}>Filtros Avançados</Text>
       </View>
 
@@ -95,7 +113,10 @@ export default function FiltersScreen() {
         <View style={styles.spacer} />
 
         <View style={styles.filterGroup}>
-          <Text style={styles.filterGroupTitle}>📅 Período</Text>
+          <View style={styles.filterGroupHeader}>
+            <AppIcon name="calendar" color={colors.primaryLight} size={17} />
+            <Text style={styles.filterGroupTitle}>Período</Text>
+          </View>
           {periodOptions.map((option) => (
             <TouchableOpacity
               key={option.id}
@@ -119,7 +140,10 @@ export default function FiltersScreen() {
         </View>
 
         <View style={styles.filterGroup}>
-          <Text style={styles.filterGroupTitle}>👨‍🏫 Professor</Text>
+          <View style={styles.filterGroupHeader}>
+            <AppIcon name="user" color={colors.primaryLight} size={17} />
+            <Text style={styles.filterGroupTitle}>Professor</Text>
+          </View>
           {professorOptions.map((option) => (
             <TouchableOpacity
               key={option.id}
@@ -143,7 +167,10 @@ export default function FiltersScreen() {
         </View>
 
         <View style={styles.filterGroup}>
-          <Text style={styles.filterGroupTitle}>🔬 Laboratório</Text>
+          <View style={styles.filterGroupHeader}>
+            <AppIcon name="lab" color={colors.primaryLight} size={17} />
+            <Text style={styles.filterGroupTitle}>Laboratório</Text>
+          </View>
           {labOptions.map((option) => (
             <TouchableOpacity
               key={option.id}
@@ -192,20 +219,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     //gap: spacing.md,
   },
-  backBtn: {
-    width: 36,
-    height: 36,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: borderRadius.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  backIcon: {
-    fontSize: 20,
-    color: colors.white,
-  },
   detailHeaderTitle: {
+<<<<<<< Updated upstream
+    marginLeft: spacing.sm,
     fontSize: 17,
+=======
+    marginLeft: spacing.sm,
+    fontSize: 17,
+>>>>>>> Stashed changes
     fontWeight: 'bold',
     color: colors.white,
   },
@@ -216,11 +237,16 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
     paddingHorizontal: spacing.md,
   },
+  filterGroupHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
   filterGroupTitle: {
     fontSize: 12,
     fontWeight: 'bold',
     color: colors.text,
-    marginBottom: spacing.sm,
+    marginLeft: spacing.xs,
   },
   filterOption: {
     flexDirection: 'row',
