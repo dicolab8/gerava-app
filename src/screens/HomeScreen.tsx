@@ -13,7 +13,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
-import { api } from '../services/api';
+import { AppIcon, BottomNav, IconButton } from '../components/NavigationElements';
+import { usePreferences } from '../contexts/PreferencesContext';
+import { api, normalizeApiList } from '../services/api';
 import { Evaluation } from '../types';
 import { colors, typography, spacing, borderRadius } from '../theme';
 
@@ -21,8 +23,15 @@ type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'H
 
 const chips = ['Todas', 'Esta semana', 'Módulo 6', 'Módulo 8', 'Internato'];
 
+const normalizeText = (value?: string | number) =>
+  String(value ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+
 export default function HomeScreen() {
   const navigation = useNavigation<HomeScreenNavigationProp>();
+  const { preferences } = usePreferences();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedChip, setSelectedChip] = useState('Todas');
   const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
@@ -40,7 +49,7 @@ export default function HomeScreen() {
       const data = await api.get('/avaliacoes');
       // A API pode retornar o array diretamente ou dentro de um objeto (ex: { data: [...] })
       // Ajustar conforme o retorno real da API Render
-      setEvaluations(Array.isArray(data) ? data : data.avaliacoes || []);
+      setEvaluations(normalizeApiList<Evaluation>(data));
     } catch (err) {
       setError('Não foi possível carregar as avaliações.');
       console.error(err);
@@ -60,6 +69,65 @@ export default function HomeScreen() {
     }
   };
 
+  const isThisWeek = (dateValue: string) => {
+    const date = new Date(dateValue);
+    const today = new Date();
+
+    if (Number.isNaN(date.getTime())) {
+      return false;
+    }
+
+    const start = new Date(today);
+    start.setHours(0, 0, 0, 0);
+    start.setDate(today.getDate() - today.getDay());
+
+    const end = new Date(start);
+    end.setDate(start.getDate() + 7);
+
+    return date >= start && date < end;
+  };
+
+  const visibleEvaluations = evaluations.filter((evaluation) => {
+    const term = normalizeText(searchQuery.trim());
+    const haystack = normalizeText([
+      evaluation.disciplina_nome,
+      evaluation.professor_nome,
+      evaluation.modulo_nome,
+    ].join(' '));
+    const moduleName = normalizeText(evaluation.modulo_nome);
+    const chipName = normalizeText(selectedChip);
+    const selectedModuleId = preferences.selectedModuleId;
+    const selectedModuleName = normalizeText(preferences.selectedModuleName || '');
+    const filters = preferences.filters;
+
+    const matchesSearch = !term || haystack.includes(term);
+    const matchesConfiguredModule =
+      !selectedModuleId ||
+      String(evaluation.modulo_id) === String(selectedModuleId) ||
+      (!!selectedModuleName && moduleName === selectedModuleName);
+    const matchesPeriod =
+      filters.period === 'all' ||
+      (filters.period === 'week' && isThisWeek(evaluation.data)) ||
+      (filters.period === 'month' &&
+        new Date(evaluation.data).getMonth() === new Date().getMonth() &&
+        new Date(evaluation.data).getFullYear() === new Date().getFullYear());
+    const matchesProfessor =
+      filters.professorId === 'all' ||
+      String((evaluation as any).professor_id) === filters.professorId ||
+      normalizeText(evaluation.professor_nome) === normalizeText(filters.professorName || '');
+    const matchesLab =
+      filters.labId === 'all' ||
+      evaluation.laboratorios?.some((lab) => String(lab.id) === filters.labId);
+    const matchesChip =
+      chipName === 'todas' ||
+      (chipName === 'esta semana' && isThisWeek(evaluation.data)) ||
+      (chipName === 'modulo 6' && moduleName.includes('6')) ||
+      (chipName === 'modulo 8' && moduleName.includes('8')) ||
+      (chipName === 'internato' && moduleName.includes('internato'));
+
+    return matchesSearch && matchesConfiguredModule && matchesPeriod && matchesProfessor && matchesLab && matchesChip;
+  });
+
   const renderEvaluation = ({ item }: { item: Evaluation }) => (
     <TouchableOpacity
       style={styles.card}
@@ -75,10 +143,16 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.cardMeta}>
-        <Text style={styles.metaText}>👩‍🏫 {item.professor_nome}</Text>
-        <Text style={styles.metaText}>
-          📅 {new Date(item.data).toLocaleDateString('pt-BR')} · {item.horario_ini.substring(0, 5)}
-        </Text>
+        <View style={styles.metaRow}>
+          <AppIcon name="user" color={colors.text3} size={15} />
+          <Text style={styles.metaText}>{item.professor_nome}</Text>
+        </View>
+        <View style={styles.metaRow}>
+          <AppIcon name="calendar" color={colors.text3} size={15} />
+          <Text style={styles.metaText}>
+            {new Date(item.data).toLocaleDateString('pt-BR')} · {item.horario_ini.substring(0, 5)}
+          </Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -93,29 +167,27 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.headerIcons}>
-          <TouchableOpacity
+          <IconButton
+            name="mail"
+            badge={3}
+            accessibilityLabel="Mensagens"
             style={[styles.headerIcon, styles.iconSpacing]}
             onPress={() => navigation.navigate('Messages')}
-          >
-            <Text style={styles.iconText}>📧</Text>
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>3</Text>
-            </View>
-          </TouchableOpacity>
+          />
 
-          <TouchableOpacity
+          <IconButton
+            name="settings"
+            accessibilityLabel="Configurações"
             style={styles.headerIcon}
             onPress={() => navigation.navigate('Settings')}
-          >
-            <Text style={styles.iconText}>⚙️</Text>
-          </TouchableOpacity>
+          />
         </View>
       </View>
 
       {/* SEARCH */}
       <View style={styles.searchWrap}>
         <View style={styles.searchBar}>
-          <Text style={styles.searchIcon}>🔍</Text>
+          <AppIcon name="search" color={colors.text3} size={18} />
           <TextInput
             style={styles.searchInput}
             placeholder="Buscar avaliação..."
@@ -127,33 +199,41 @@ export default function HomeScreen() {
       </View>
 
       {/* CHIPS */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.chipsContainer}
-        contentContainerStyle={styles.chipsContent}
-      >
-        {chips.map((chip, index) => (
-          <TouchableOpacity
-            key={chip}
-            style={[
-              styles.chip,
-              selectedChip === chip && styles.chipActive,
-              index !== chips.length - 1 && styles.chipSpacing,
-            ]}
-            onPress={() => setSelectedChip(chip)}
-          >
-            <Text
+      <View style={styles.quickFilters}>
+        <View style={styles.quickFiltersHeader}>
+          <Text style={styles.quickFiltersTitle}>Filtros rápidos</Text>
+          <Text style={styles.quickFiltersHint}>deslize para ver mais</Text>
+        </View>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.chipsScroll}
+          contentContainerStyle={styles.chipsContent}
+          keyboardShouldPersistTaps="handled"
+        >
+          {chips.map((chip, index) => (
+            <TouchableOpacity
+              key={chip}
               style={[
-                styles.chipText,
-                selectedChip === chip && styles.chipTextActive,
+                styles.chip,
+                selectedChip === chip && styles.chipActive,
+                index !== chips.length - 1 && styles.chipSpacing,
               ]}
+              onPress={() => setSelectedChip(chip)}
+              activeOpacity={0.72}
             >
-              {chip}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+              <Text
+                style={[
+                  styles.chipText,
+                  selectedChip === chip && styles.chipTextActive,
+                ]}
+              >
+                {chip}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
 
       {/* LIST */}
       {isLoading ? (
@@ -163,14 +243,17 @@ export default function HomeScreen() {
         </View>
       ) : error ? (
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>❌ {error}</Text>
+          <View style={styles.errorIcon}>
+            <AppIcon name="warning" color={colors.danger} size={30} />
+          </View>
+          <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity style={styles.retryButton} onPress={fetchEvaluations}>
             <Text style={styles.retryButtonText}>Tentar novamente</Text>
           </TouchableOpacity>
         </View>
       ) : (
         <FlatList
-          data={evaluations}
+          data={visibleEvaluations}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderEvaluation}
           contentContainerStyle={styles.listContent}
@@ -178,49 +261,20 @@ export default function HomeScreen() {
           onRefresh={fetchEvaluations}
           refreshing={isLoading}
           ListHeaderComponent={() => (
-            <Text style={styles.sectionHeader}>Março 2025</Text>
+            <Text style={styles.sectionHeader}>
+              {visibleEvaluations.length} avaliação{visibleEvaluations.length !== 1 ? 'ões' : ''}
+            </Text>
           )}
           ListEmptyComponent={() => (
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>Nenhuma avaliação encontrada.</Text>
+              <Text style={styles.emptyText}>Nenhuma avaliação encontrada para este filtro.</Text>
             </View>
           )}
         />
       )}
 
       {/* BOTTOM NAV */}
-      <View style={styles.bottomNav}>
-        {['🏠', '📅', '⭐', 'ℹ️'].map((icon, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.bottomNavItem}
-            onPress={() => {
-              if (index === 0) navigation.navigate('Home');
-              if (index === 1) navigation.navigate('Calendar');
-              if (index === 2) navigation.navigate('Favorites');
-              if (index === 3) navigation.navigate('About');
-            }}
-          >
-            <Text
-              style={[
-                styles.bottomNavIcon,
-                index === 0 && styles.bottomNavIconActive,
-              ]}
-            >
-              {icon}
-            </Text>
-
-            <Text
-              style={[
-                styles.bottomNavLabel,
-                index === 0 && styles.bottomNavLabelActive,
-              ]}
-            >
-              {['Início', 'Calendário', 'Favoritos', 'Sobre'][index]}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      <BottomNav active="Home" />
     </SafeAreaView>
   );
 }
@@ -262,35 +316,6 @@ const styles = StyleSheet.create({
   },
 
   headerIcon: {
-    width: 38,
-    height: 38,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: borderRadius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-  },
-
-  iconText: {
-    fontSize: 18,
-  },
-
-  badge: {
-    position: 'absolute',
-    top: -4,
-    right: -4,
-    width: 16,
-    height: 16,
-    backgroundColor: colors.accent,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  badgeText: {
-    fontSize: 9,
-    fontWeight: 'bold',
-    color: colors.text,
   },
 
   searchWrap: {
@@ -309,27 +334,49 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  searchIcon: {
-    fontSize: 18,
-    marginRight: 10,
-  },
-
   searchInput: {
     flex: 1,
     fontSize: 14,
     fontFamily: typography.regular,
     color: colors.text,
+    marginLeft: 10,
   },
 
-  chipsContainer: {
+  quickFilters: {
     backgroundColor: colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+    paddingTop: spacing.sm,
+  },
+
+  quickFiltersHeader: {
+    paddingHorizontal: spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
+  quickFiltersTitle: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: colors.text,
+    textTransform: 'uppercase',
+  },
+
+  quickFiltersHint: {
+    fontSize: 10,
+    color: colors.text3,
+  },
+
+  chipsScroll: {
+    maxHeight: 46,
   },
 
   chipsContent: {
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.sm,
+    alignItems: 'center',
   },
 
   chipSpacing: {
@@ -338,11 +385,13 @@ const styles = StyleSheet.create({
 
   chip: {
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
+    minHeight: 32,
     borderRadius: 20,
     borderWidth: 1.5,
     borderColor: colors.border,
     backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   chipActive: {
@@ -427,52 +476,18 @@ const styles = StyleSheet.create({
   cardMeta: {
     marginTop: spacing.xs,
   },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
 
   metaText: {
     fontSize: 12,
     color: colors.text2,
-    marginBottom: 4,
+    marginLeft: 6,
   },
 
-  bottomNav: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: colors.surface,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    flexDirection: 'row',
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.md,
-  },
-
-  bottomNavItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-
-  bottomNavIcon: {
-    fontSize: 22,
-    color: colors.text3,
-  },
-
-  bottomNavIconActive: {
-    color: colors.primaryLight,
-  },
-
-  bottomNavLabel: {
-    fontSize: 10,
-    fontWeight: '500',
-    color: colors.text3,
-    marginTop: 3,
-  },
-
-  bottomNavLabelActive: {
-    color: colors.primaryLight,
-    fontWeight: 'bold',
-  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -496,6 +511,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: spacing.md,
   },
+  errorIcon: {
+    width: 54,
+    height: 54,
+    borderRadius: borderRadius.lg,
+    backgroundColor: '#FEE2E2',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.sm,
+  },
   retryButton: {
     backgroundColor: colors.primary,
     paddingHorizontal: spacing.lg,
@@ -517,4 +541,4 @@ const styles = StyleSheet.create({
     color: colors.text3,
     fontSize: 14,
   },
-});
+});

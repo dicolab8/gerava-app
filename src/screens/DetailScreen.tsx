@@ -11,9 +11,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
+import { AppIcon, HeaderBackButton } from '../components/NavigationElements';
 import { api } from '../services/api';
 import { Evaluation } from '../types';
-import { colors, typography, spacing, borderRadius } from '../theme';
+import { colors, spacing, borderRadius } from '../theme';
 
 type DetailScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Details'>;
 
@@ -33,10 +34,8 @@ export default function DetailScreen() {
     try {
       setIsLoading(true);
       setError(null);
-      // Nota: Esta rota é protegida no backend. 
-      // Se falhar por 401, precisaremos do token.
       const data = await api.get(`/avaliacoes/${evaluationId}`);
-      setEvaluation(data.avaliacao || data);
+      setEvaluation(data.avaliacao || data.data || data);
     } catch (err) {
       setError('Erro ao carregar detalhes.');
       console.error(err);
@@ -60,7 +59,10 @@ export default function DetailScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>❌ {error || 'Avaliação não encontrada.'}</Text>
+          <View style={styles.errorIcon}>
+            <AppIcon name="warning" color={colors.danger} size={30} />
+          </View>
+          <Text style={styles.errorText}>{error || 'Avaliacao nao encontrada.'}</Text>
           <TouchableOpacity style={styles.retryButton} onPress={() => navigation.goBack()}>
             <Text style={styles.retryButtonText}>Voltar</Text>
           </TouchableOpacity>
@@ -72,10 +74,8 @@ export default function DetailScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.detailHeader}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Text style={styles.backIcon}>←</Text>
-        </TouchableOpacity>
-        <Text style={styles.detailHeaderTitle}>Detalhes da Avaliação</Text>
+        <HeaderBackButton onPress={() => navigation.goBack()} />
+        <Text style={styles.detailHeaderTitle}>Detalhes da Avaliacao</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -90,27 +90,27 @@ export default function DetailScreen() {
           <View style={styles.infoCard}>
             <View style={styles.infoRow}>
               <View style={styles.infoIcon}>
-                <Text>📋</Text>
+                <AppIcon name="note" color={colors.primaryLight} size={20} />
               </View>
-              <View>
-                <Text style={styles.infoLabel}>Módulo</Text>
-                <Text style={styles.infoValue}>{evaluation.modulo_nome} · ID {evaluation.modulo_id}</Text>
+              <View style={styles.infoText}>
+                <Text style={styles.infoLabel}>Modulo</Text>
+                <Text style={styles.infoValue}>{evaluation.modulo_nome} - ID {evaluation.modulo_id}</Text>
               </View>
             </View>
             <View style={styles.infoRow}>
               <View style={styles.infoIcon}>
-                <Text>👤</Text>
+                <AppIcon name="user" color={colors.primaryLight} size={20} />
               </View>
-              <View>
+              <View style={styles.infoText}>
                 <Text style={styles.infoLabel}>Professor</Text>
                 <Text style={styles.infoValue}>{evaluation.professor_nome}</Text>
               </View>
             </View>
             <View style={styles.infoRow}>
               <View style={styles.infoIcon}>
-                <Text>📅</Text>
+                <AppIcon name="calendar" color={colors.primaryLight} size={20} />
               </View>
-              <View>
+              <View style={styles.infoText}>
                 <Text style={styles.infoLabel}>Data</Text>
                 <Text style={styles.infoValue}>
                   {new Date(evaluation.data).toLocaleDateString('pt-BR', {
@@ -123,17 +123,22 @@ export default function DetailScreen() {
             </View>
             <View style={styles.infoRow}>
               <View style={styles.infoIcon}>
-                <Text>⏰</Text>
+                <AppIcon name="clock" color={colors.primaryLight} size={20} />
               </View>
-              <View>
-                <Text style={styles.infoLabel}>Horário</Text>
-                <Text style={styles.infoValue}>{evaluation.horario_ini.substring(0, 5)} – {evaluation.horario_fim.substring(0, 5)}</Text>
+              <View style={styles.infoText}>
+                <Text style={styles.infoLabel}>Horario</Text>
+                <Text style={styles.infoValue}>
+                  {evaluation.horario_ini.substring(0, 5)} - {evaluation.horario_fim.substring(0, 5)}
+                </Text>
               </View>
             </View>
           </View>
 
           <View style={styles.infoBox}>
-            <Text style={styles.infoBoxTitle}>🔬 Laboratórios</Text>
+            <View style={styles.infoBoxHeader}>
+              <AppIcon name="lab" color={colors.primaryLight} size={18} />
+              <Text style={styles.infoBoxTitle}>Laboratorios</Text>
+            </View>
             {evaluation.laboratorios.map((lab, index) => (
               <View key={index} style={styles.infoBoxItem}>
                 <View style={styles.dot} />
@@ -144,13 +149,16 @@ export default function DetailScreen() {
 
           {evaluation.observacoes && (
             <View style={styles.infoBox}>
-              <Text style={styles.infoBoxTitle}>📋 Observações</Text>
+              <View style={styles.infoBoxHeader}>
+                <AppIcon name="note" color={colors.primaryLight} size={18} />
+                <Text style={styles.infoBoxTitle}>Observacoes</Text>
+              </View>
               <Text style={styles.observationsText}>{evaluation.observacoes}</Text>
             </View>
           )}
 
           <TouchableOpacity style={styles.favoriteButton}>
-            <Text style={styles.favoriteIcon}>⭐</Text>
+            <AppIcon name="favorite" color={colors.white} size={20} />
             <Text style={styles.favoriteText}>Salvar nos Favoritos</Text>
           </TouchableOpacity>
         </View>
@@ -170,21 +178,9 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
-    //gap: spacing.md,
-  },
-  backBtn: {
-    width: 36,
-    height: 36,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: borderRadius.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  backIcon: {
-    fontSize: 20,
-    color: colors.white,
   },
   detailHeaderTitle: {
+    marginLeft: spacing.sm,
     fontSize: 17,
     fontWeight: 'bold',
     color: colors.white,
@@ -196,7 +192,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
-    //gap: spacing.sm,
     marginBottom: spacing.md,
   },
   detailTitle: {
@@ -210,15 +205,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: 2,
     borderRadius: 20,
+    marginLeft: spacing.sm,
   },
   tagBlue: {
     backgroundColor: '#DBEAFE',
-  },
-  tagGreen: {
-    backgroundColor: '#D1FAE5',
-  },
-  tagOrange: {
-    backgroundColor: colors.accentSoft,
   },
   tagText: {
     fontSize: 10,
@@ -229,10 +219,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderRadius: borderRadius.lg,
     padding: spacing.sm,
-    //shadowColor: '#000',
-    //shadowOffset: { width: 0, height: 2 },
-    //shadowOpacity: 0.05,
-    //shadowRadius: 4,
     elevation: 2,
     borderWidth: 1,
     borderColor: colors.border,
@@ -241,7 +227,6 @@ const styles = StyleSheet.create({
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    //: spacing.sm,
     paddingVertical: spacing.sm,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
@@ -253,6 +238,10 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.sm,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  infoText: {
+    flex: 1,
+    marginLeft: spacing.sm,
   },
   infoLabel: {
     fontSize: 11,
@@ -274,13 +263,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
     color: colors.text,
-    marginBottom: spacing.sm,
     textTransform: 'uppercase',
+    marginLeft: spacing.xs,
+  },
+  infoBoxHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
   },
   infoBoxItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    //gap: spacing.xs,
     paddingVertical: 2,
   },
   dot: {
@@ -292,6 +285,7 @@ const styles = StyleSheet.create({
   infoBoxText: {
     fontSize: 13,
     color: colors.text2,
+    marginLeft: spacing.xs,
   },
   observationsText: {
     fontSize: 12,
@@ -305,17 +299,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    //gap: spacing.sm,
     marginTop: spacing.sm,
-  },
-  favoriteIcon: {
-    fontSize: 18,
-    color: colors.white,
   },
   favoriteText: {
     fontSize: 14,
     fontWeight: 'bold',
     color: colors.white,
+    marginLeft: spacing.sm,
   },
   loadingContainer: {
     flex: 1,
@@ -340,6 +330,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: spacing.md,
   },
+  errorIcon: {
+    width: 54,
+    height: 54,
+    borderRadius: borderRadius.lg,
+    backgroundColor: '#FEE2E2',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.sm,
+  },
   retryButton: {
     backgroundColor: colors.primary,
     paddingHorizontal: spacing.lg,
@@ -351,4 +350,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 14,
   },
-});
+});

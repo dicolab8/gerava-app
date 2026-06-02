@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
+import { AppIcon, AppIconName, ChevronIcon, HeaderBackButton } from '../components/NavigationElements';
 import { colors, spacing, borderRadius } from '../theme';
 
 type FeedbackScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Feedback'>;
@@ -29,18 +30,16 @@ export default function FeedbackScreen() {
   };
 
   const feedbackTypes = [
-    { id: 'bug', label: '🐛 Bug / Erro', emoji: '🐛' },
-    { id: 'suggestion', label: '💡 Sugestão', emoji: '💡' },
-    { id: 'complaint', label: '😡 Reclamação', emoji: '😡' },
-    { id: 'praise', label: '👍 Elogio', emoji: '👍' },
+    { id: 'bug', label: 'Bug / Erro', icon: 'bug' as AppIconName },
+    { id: 'suggestion', label: 'Sugestão', icon: 'idea' as AppIconName },
+    { id: 'complaint', label: 'Reclamação', icon: 'complaint' as AppIconName },
+    { id: 'praise', label: 'Elogio', icon: 'praise' as AppIconName },
   ];
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.detailHeader}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Text style={styles.backIcon}>←</Text>
-        </TouchableOpacity>
+        <HeaderBackButton onPress={() => navigation.goBack()} />
         <Text style={styles.detailHeaderTitle}>Enviar Feedback</Text>
       </View>
 
@@ -57,6 +56,11 @@ export default function FeedbackScreen() {
                 ]}
                 onPress={() => setSelectedType(type.id as FeedbackType)}
               >
+                <AppIcon
+                  name={type.icon}
+                  color={selectedType === type.id ? colors.primaryLight : colors.text3}
+                  size={20}
+                />
                 <Text style={[
                   styles.typeBtnText,
                   selectedType === type.id && styles.typeBtnTextActive,
@@ -75,7 +79,7 @@ export default function FeedbackScreen() {
               <Text style={styles.selectText}>
                 {selectedEvaluation || 'Selecione uma avaliação...'}
               </Text>
-              <Text style={styles.selectArrow}>▼</Text>
+              <ChevronIcon direction="down" color={colors.text3} size={14} />
             </TouchableOpacity>
           </View>
 
@@ -94,18 +98,20 @@ export default function FeedbackScreen() {
           <View style={styles.ratingContainer}>
             {[1, 2, 3, 4, 5].map((star) => (
               <TouchableOpacity key={star} onPress={() => setRating(star)}>
-                <Text style={[
-                  styles.star,
-                  star <= rating && styles.starActive,
-                ]}>
-                  ★
-                </Text>
+                <View style={styles.star}>
+                  <AppIcon
+                    name="favorite"
+                    color={star <= rating ? colors.accent : colors.border}
+                    size={28}
+                  />
+                </View>
               </TouchableOpacity>
             ))}
           </View>
 
           <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-            <Text style={styles.submitButtonText}>✉️ Enviar feedback</Text>
+            <AppIcon name="send" color={colors.white} size={19} />
+            <Text style={styles.submitButtonText}>Enviar feedback</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -126,19 +132,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     //gap: spacing.md,
   },
-  backBtn: {
-    width: 36,
-    height: 36,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: borderRadius.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  backIcon: {
-    fontSize: 20,
-    color: colors.white,
-  },
   detailHeaderTitle: {
+    marginLeft: spacing.sm,
     fontSize: 17,
     fontWeight: 'bold',
     color: colors.white,
@@ -171,6 +166,8 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     backgroundColor: colors.surface,
     alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 74,
   },
   typeBtnActive: {
     borderColor: colors.primaryLight,
@@ -180,6 +177,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: colors.text2,
+    marginTop: spacing.xs,
   },
   typeBtnTextActive: {
     color: colors.primaryLight,
@@ -201,10 +199,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.text,
   },
-  selectArrow: {
-    fontSize: 12,
-    color: colors.text3,
-  },
   feedbackTextarea: {
     backgroundColor: colors.surface2,
     borderWidth: 1.5,
@@ -222,21 +216,23 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   star: {
-    fontSize: 28,
-    color: colors.border,
-  },
-  starActive: {
-    color: colors.accent,
+    width: 34,
+    height: 34,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   submitButton: {
     backgroundColor: colors.primary,
     borderRadius: borderRadius.sm,
     padding: spacing.md,
     alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
   },
   submitButtonText: {
     fontSize: 14,
     fontWeight: 'bold',
     color: colors.white,
+    marginLeft: spacing.sm,
   },
 });

@@ -3,6 +3,22 @@
 // Ou use 10.0.2.2 para o emulador Android padrão: 'http://10.0.2.2:3000/api'
 const BASE_URL = 'https://gerava.onrender.com/api'; 
 
+export const normalizeApiList = <T = any>(data: any): T[] => {
+  if (Array.isArray(data)) {
+    return data;
+  }
+
+  if (Array.isArray(data?.data)) {
+    return data.data;
+  }
+
+  if (Array.isArray(data?.avaliacoes)) {
+    return data.avaliacoes;
+  }
+
+  return [];
+};
+
 export const api = {
   get: async (endpoint: string, token?: string) => {
     const headers: { [key: string]: string } = {};

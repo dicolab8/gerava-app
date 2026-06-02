@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
+import { AppIcon, IconButton } from '../components/NavigationElements';
 import { colors, spacing, borderRadius } from '../theme';
 
 type EmptyStateScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'EmptyState'>;
@@ -35,18 +36,14 @@ export default function EmptyStateScreen() {
           <Text style={styles.headerSubtitle}>Avaliações agendadas</Text>
         </View>
         <View style={styles.headerIcons}>
-          <TouchableOpacity style={styles.headerIcon}>
-            <Text style={styles.iconText}>📧</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.headerIcon}>
-            <Text style={styles.iconText}>⚙️</Text>
-          </TouchableOpacity>
+          <IconButton name="mail" accessibilityLabel="Mensagens" style={styles.headerIcon} />
+          <IconButton name="settings" accessibilityLabel="Configurações" style={styles.headerIcon} />
         </View>
       </View>
 
       <View style={styles.searchWrap}>
         <View style={[styles.searchBar, styles.searchBarActive]}>
-          <Text style={styles.searchIcon}>🔍</Text>
+          <AppIcon name="search" color={colors.accent} size={18} />
           <TextInput
             style={styles.searchInput}
             placeholder="cirurgia cardíaca"
@@ -78,7 +75,7 @@ export default function EmptyStateScreen() {
 
       <View style={styles.emptyState}>
         <View style={styles.emptyIcon}>
-          <Text style={styles.emptyIconText}>🔍</Text>
+          <AppIcon name="search" color={colors.primaryLight} size={38} />
         </View>
         <Text style={styles.emptyTitle}>Nenhuma avaliação encontrada</Text>
         <Text style={styles.emptySub}>
@@ -123,15 +120,7 @@ const styles = StyleSheet.create({
     //gap: 12,
   },
   headerIcon: {
-    width: 38,
-    height: 38,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: borderRadius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconText: {
-    fontSize: 18,
+    marginLeft: 12,
   },
   searchWrap: {
     padding: spacing.md,
@@ -153,13 +142,11 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: colors.accent,
   },
-  searchIcon: {
-    fontSize: 18,
-  },
   searchInput: {
     flex: 1,
     fontSize: 14,
     color: colors.text,
+    marginLeft: 10,
   },
   chipsContainer: {
     backgroundColor: colors.surface,
@@ -205,9 +192,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.lg,
-  },
-  emptyIconText: {
-    fontSize: 36,
   },
   emptyTitle: {
     fontSize: 17,

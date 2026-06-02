@@ -10,6 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
+import { AppIcon, AppIconName, HeaderBackButton } from '../components/NavigationElements';
 import { messages } from '../constants/data';
 import { colors, spacing, borderRadius } from '../theme';
 
@@ -26,13 +27,13 @@ export default function MessagesScreen() {
   const getIconForType = (type: string) => {
     switch (type) {
       case 'warning':
-        return { icon: '⚠️', bg: colors.danger };
+        return { icon: 'warning' as AppIconName, bg: colors.danger };
       case 'success':
-        return { icon: '✅', bg: colors.success };
+        return { icon: 'check' as AppIconName, bg: colors.success };
       case 'info':
-        return { icon: '🔔', bg: colors.accent };
+        return { icon: 'bell' as AppIconName, bg: colors.accent };
       default:
-        return { icon: '📧', bg: colors.text3 };
+        return { icon: 'mail' as AppIconName, bg: colors.text3 };
     }
   };
 
@@ -41,16 +42,15 @@ export default function MessagesScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.detailHeader}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Text style={styles.backIcon}>←</Text>
-        </TouchableOpacity>
+        <HeaderBackButton onPress={() => navigation.goBack()} />
         <Text style={styles.detailHeaderTitle}>Mensagens</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.headerRow}>
           <View style={styles.notifBadge}>
-            <Text style={styles.notifBadgeText}>● {unreadCount} não lidas</Text>
+            <View style={styles.notifDot} />
+            <Text style={styles.notifBadgeText}>{unreadCount} não lidas</Text>
           </View>
           <TouchableOpacity onPress={markAllAsRead}>
             <Text style={styles.markAllText}>Marcar todas</Text>
@@ -63,7 +63,7 @@ export default function MessagesScreen() {
           return (
             <View key={msg.id} style={[styles.msgItem, styles.msgUnreadBg]}>
               <View style={[styles.msgIcon, { backgroundColor: bg }]}>
-                <Text style={styles.msgIconText}>{icon}</Text>
+                <AppIcon name={icon} color={colors.white} size={21} />
               </View>
               <View style={styles.msgContent}>
                 <Text style={styles.msgTitle}>{msg.title}</Text>
@@ -81,7 +81,7 @@ export default function MessagesScreen() {
           return (
             <View key={msg.id} style={styles.msgItem}>
               <View style={[styles.msgIcon, { backgroundColor: bg }]}>
-                <Text style={styles.msgIconText}>{icon}</Text>
+                <AppIcon name={icon} color={colors.white} size={21} />
               </View>
               <View style={styles.msgContent}>
                 <Text style={styles.msgTitle}>{msg.title}</Text>
@@ -109,19 +109,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     //gap: spacing.md,
   },
-  backBtn: {
-    width: 36,
-    height: 36,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: borderRadius.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  backIcon: {
-    fontSize: 20,
-    color: colors.white,
-  },
   detailHeaderTitle: {
+    marginLeft: spacing.sm,
     fontSize: 17,
     fontWeight: 'bold',
     color: colors.white,
@@ -138,6 +127,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: 2,
     borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  notifDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.accent,
+    marginRight: 5,
   },
   notifBadgeText: {
     fontSize: 11,
@@ -180,9 +178,6 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  msgIconText: {
-    fontSize: 20,
   },
   msgContent: {
     flex: 1,

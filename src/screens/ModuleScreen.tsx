@@ -11,7 +11,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
-import { api } from '../services/api';
+import { AppIcon, HeaderBackButton } from '../components/NavigationElements';
+import { usePreferences } from '../contexts/PreferencesContext';
+import { api, normalizeApiList } from '../services/api';
 import { UserModule } from '../types';
 import { colors, spacing, borderRadius } from '../theme';
 
@@ -19,53 +21,61 @@ type ModuleScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 
 
 export default function ModuleScreen() {
   const navigation = useNavigation<ModuleScreenNavigationProp>();
+  const { preferences, updatePreferences } = usePreferences();
   const [modules, setModules] = useState<UserModule[]>([]);
-  const [selectedModuleId, setSelectedModuleId] = useState<number | string>(6);
+  const [selectedModuleId, setSelectedModuleId] = useState<number | string | null>(preferences.selectedModuleId);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchModules();
   }, []);
 
+  useEffect(() => {
+    setSelectedModuleId(preferences.selectedModuleId);
+  }, [preferences.selectedModuleId]);
+
   const fetchModules = async () => {
     try {
       setIsLoading(true);
       const data = await api.get('/avaliacoes/modulos');
-      if (Array.isArray(data)) {
-        setModules(data.map((m: any) => ({
-          id: m.id,
-          nome: m.nome,
-        })));
-      }
+      const moduleList = normalizeApiList<any>(data);
+      setModules(moduleList.map((m: any) => ({
+        id: m.id,
+        nome: m.nome,
+        periodo: m.periodo,
+      })));
     } catch (error) {
-      console.error('Erro ao buscar módulos:', error);
+      console.error('Erro ao buscar modulos:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
+    const selectedModule = modules.find((module) => String(module.id) === String(selectedModuleId));
+    await updatePreferences({
+      selectedModuleId,
+      selectedModuleName: selectedModule?.nome || null,
+    });
     navigation.goBack();
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.detailHeader}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Text style={styles.backIcon}>←</Text>
-        </TouchableOpacity>
-        <Text style={styles.detailHeaderTitle}>Meu Módulo / Período</Text>
+        <HeaderBackButton onPress={() => navigation.goBack()} />
+        <Text style={styles.detailHeaderTitle}>Meu Modulo / Periodo</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <Text style={styles.description}>
-          Selecione o módulo ao qual você pertence. Isso filtra automaticamente as avaliações relevantes na tela inicial.
+          Selecione o modulo ao qual voce pertence. Isso filtra automaticamente as avaliacoes relevantes na tela inicial.
         </Text>
 
         {isLoading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={colors.primary} />
-            <Text style={styles.loadingText}>Carregando módulos...</Text>
+            <Text style={styles.loadingText}>Carregando modulos...</Text>
           </View>
         ) : (
           <View style={styles.moduleList}>
@@ -91,7 +101,7 @@ export default function ModuleScreen() {
                   {module.periodo && <Text style={styles.modulePeriod}>{module.periodo}</Text>}
                 </View>
                 {selectedModuleId === module.id && (
-                  <Text style={styles.checkIcon}>✓</Text>
+                  <AppIcon name="check" color={colors.primaryLight} size={22} />
                 )}
               </TouchableOpacity>
             ))}
@@ -100,7 +110,7 @@ export default function ModuleScreen() {
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.confirmButton} onPress={handleConfirm}>
-            <Text style={styles.confirmButtonText}>Confirmar seleção</Text>
+            <Text style={styles.confirmButtonText}>Confirmar selecao</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -119,21 +129,9 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
-    //gap: spacing.md,
-  },
-  backBtn: {
-    width: 36,
-    height: 36,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: borderRadius.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  backIcon: {
-    fontSize: 20,
-    color: colors.white,
   },
   detailHeaderTitle: {
+    marginLeft: spacing.sm,
     fontSize: 17,
     fontWeight: 'bold',
     color: colors.white,
@@ -154,7 +152,6 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
-    //gap: spacing.md,
     borderWidth: 2,
     borderColor: 'transparent',
   },
@@ -180,6 +177,7 @@ const styles = StyleSheet.create({
   },
   moduleText: {
     flex: 1,
+    marginLeft: spacing.md,
   },
   moduleName: {
     fontSize: 14,
@@ -190,10 +188,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.text3,
     marginTop: 2,
-  },
-  checkIcon: {
-    fontSize: 20,
-    color: colors.primaryLight,
   },
   buttonContainer: {
     padding: spacing.md,
@@ -219,4 +213,4 @@ const styles = StyleSheet.create({
     color: colors.text3,
     fontSize: 14,
   },
-});
+});

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
+import { AppIcon, HeaderBackButton } from '../components/NavigationElements';
+import { FontSizePreference, usePreferences } from '../contexts/PreferencesContext';
 import { colors, spacing, borderRadius } from '../theme';
 
 type ThemeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Theme'>;
@@ -31,11 +33,10 @@ const themes: ThemeOption[] = [
 
 export default function ThemeScreen() {
   const navigation = useNavigation<ThemeScreenNavigationProp>();
-  const [selectedTheme, setSelectedTheme] = useState('light');
-  const [fontSize, setFontSize] = useState<'small' | 'normal' | 'large'>('normal');
+  const { preferences, updatePreferences } = usePreferences();
 
   const getFontSizeValue = () => {
-    switch (fontSize) {
+    switch (preferences.fontSize) {
       case 'small': return 'Pequena';
       case 'normal': return 'Normal';
       case 'large': return 'Grande';
@@ -45,9 +46,7 @@ export default function ThemeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.detailHeader}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Text style={styles.backIcon}>←</Text>
-        </TouchableOpacity>
+        <HeaderBackButton onPress={() => navigation.goBack()} />
         <Text style={styles.detailHeaderTitle}>Tema do Aplicativo</Text>
       </View>
 
@@ -60,16 +59,16 @@ export default function ThemeScreen() {
           {themes.map((theme) => (
             <TouchableOpacity
               key={theme.id}
-              style={[styles.themeCard, selectedTheme === theme.id && styles.themeCardSelected]}
-              onPress={() => setSelectedTheme(theme.id)}
+              style={[styles.themeCard, preferences.themeId === theme.id && styles.themeCardSelected]}
+              onPress={() => updatePreferences({ themeId: theme.id })}
             >
               <View style={[styles.themePreview, { backgroundColor: theme.id === 'dark' ? '#0F172A' : '#F7F8FA' }]}>
                 <View style={[styles.themeBar, { backgroundColor: theme.previewColors[0], width: '80%' }]} />
                 <View style={[styles.themeBar, { backgroundColor: theme.previewColors[1], width: '60%' }]} />
                 <View style={[styles.themeBar, { backgroundColor: theme.previewColors[2], width: '70%' }]} />
-                {selectedTheme === theme.id && (
+                {preferences.themeId === theme.id && (
                   <View style={styles.checkCircle}>
-                    <Text style={styles.checkText}>✓</Text>
+                    <AppIcon name="check" color={colors.white} size={14} />
                   </View>
                 )}
               </View>
@@ -86,22 +85,22 @@ export default function ThemeScreen() {
             </View>
             <View style={styles.fontSizeControls}>
               <TouchableOpacity
-                style={[styles.fontSizeBtn, fontSize === 'small' && styles.fontSizeBtnActive]}
-                onPress={() => setFontSize('small')}
+                style={[styles.fontSizeBtn, preferences.fontSize === 'small' && styles.fontSizeBtnActive]}
+                onPress={() => updatePreferences({ fontSize: 'small' as FontSizePreference })}
               >
-                <Text style={[styles.fontSizeBtnText, fontSize === 'small' && styles.fontSizeBtnTextActive]}>A</Text>
+                <Text style={[styles.fontSizeBtnText, preferences.fontSize === 'small' && styles.fontSizeBtnTextActive]}>A</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.fontSizeBtn, styles.fontSizeBtnPrimary, fontSize === 'normal' && styles.fontSizeBtnActive]}
-                onPress={() => setFontSize('normal')}
+                style={[styles.fontSizeBtn, styles.fontSizeBtnPrimary, preferences.fontSize === 'normal' && styles.fontSizeBtnActive]}
+                onPress={() => updatePreferences({ fontSize: 'normal' as FontSizePreference })}
               >
-                <Text style={[styles.fontSizeBtnText, styles.fontSizeBtnTextPrimary, fontSize === 'normal' && styles.fontSizeBtnTextActive]}>A</Text>
+                <Text style={[styles.fontSizeBtnText, styles.fontSizeBtnTextPrimary, preferences.fontSize === 'normal' && styles.fontSizeBtnTextActive]}>A</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.fontSizeBtn, fontSize === 'large' && styles.fontSizeBtnActive]}
-                onPress={() => setFontSize('large')}
+                style={[styles.fontSizeBtn, preferences.fontSize === 'large' && styles.fontSizeBtnActive]}
+                onPress={() => updatePreferences({ fontSize: 'large' as FontSizePreference })}
               >
-                <Text style={[styles.fontSizeBtnText, fontSize === 'large' && styles.fontSizeBtnTextActive]}>A</Text>
+                <Text style={[styles.fontSizeBtnText, preferences.fontSize === 'large' && styles.fontSizeBtnTextActive]}>A</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -124,19 +123,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     //gap: spacing.md,
   },
-  backBtn: {
-    width: 36,
-    height: 36,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: borderRadius.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  backIcon: {
-    fontSize: 20,
-    color: colors.white,
-  },
   detailHeaderTitle: {
+    marginLeft: spacing.sm,
     fontSize: 17,
     fontWeight: 'bold',
     color: colors.white,
@@ -181,10 +169,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: spacing.xs,
     alignSelf: 'center',
-  },
-  checkText: {
-    fontSize: 11,
-    color: colors.white,
   },
   themeLabel: {
     textAlign: 'center',
