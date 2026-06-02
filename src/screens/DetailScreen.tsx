@@ -62,7 +62,11 @@ export default function DetailScreen() {
           <View style={styles.errorIcon}>
             <AppIcon name="warning" color={colors.danger} size={30} />
           </View>
+<<<<<<< Updated upstream
           <Text style={styles.errorText}>{error || 'Avaliacao nao encontrada.'}</Text>
+=======
+          <Text style={styles.errorText}>{error || 'Avaliação não encontrada.'}</Text>
+>>>>>>> Stashed changes
           <TouchableOpacity style={styles.retryButton} onPress={() => navigation.goBack()}>
             <Text style={styles.retryButtonText}>Voltar</Text>
           </TouchableOpacity>
@@ -75,7 +79,11 @@ export default function DetailScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.detailHeader}>
         <HeaderBackButton onPress={() => navigation.goBack()} />
+<<<<<<< Updated upstream
         <Text style={styles.detailHeaderTitle}>Detalhes da Avaliacao</Text>
+=======
+        <Text style={styles.detailHeaderTitle}>Detalhes da Avaliação</Text>
+>>>>>>> Stashed changes
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -137,7 +145,11 @@ export default function DetailScreen() {
           <View style={styles.infoBox}>
             <View style={styles.infoBoxHeader}>
               <AppIcon name="lab" color={colors.primaryLight} size={18} />
+<<<<<<< Updated upstream
               <Text style={styles.infoBoxTitle}>Laboratorios</Text>
+=======
+              <Text style={styles.infoBoxTitle}>Laboratórios</Text>
+>>>>>>> Stashed changes
             </View>
             {evaluation.laboratorios.map((lab, index) => (
               <View key={index} style={styles.infoBoxItem}>
@@ -151,7 +163,11 @@ export default function DetailScreen() {
             <View style={styles.infoBox}>
               <View style={styles.infoBoxHeader}>
                 <AppIcon name="note" color={colors.primaryLight} size={18} />
+<<<<<<< Updated upstream
                 <Text style={styles.infoBoxTitle}>Observacoes</Text>
+=======
+                <Text style={styles.infoBoxTitle}>Observações</Text>
+>>>>>>> Stashed changes
               </View>
               <Text style={styles.observationsText}>{evaluation.observacoes}</Text>
             </View>
@@ -178,6 +194,10 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
+<<<<<<< Updated upstream
+=======
+    //gap: spacing.md,
+>>>>>>> Stashed changes
   },
   detailHeaderTitle: {
     marginLeft: spacing.sm,

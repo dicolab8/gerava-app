@@ -110,8 +110,13 @@ const styles = StyleSheet.create({
     //gap: spacing.md,
   },
   detailHeaderTitle: {
+<<<<<<< Updated upstream
     marginLeft: spacing.sm,
     fontSize: 17,
+=======
+    marginLeft: spacing.sm,
+    fontSize: 17,
+>>>>>>> Stashed changes
     fontWeight: 'bold',
     color: colors.white,
   },
@@ -178,6 +183,10 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     alignItems: 'center',
     justifyContent: 'center',
+<<<<<<< Updated upstream
+=======
+    marginRight: spacing.sm,
+>>>>>>> Stashed changes
   },
   msgContent: {
     flex: 1,
