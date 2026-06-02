@@ -13,11 +13,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
 import { AppIcon, HeaderBackButton } from '../components/NavigationElements';
 import { usePreferences } from '../contexts/PreferencesContext';
-<<<<<<< Updated upstream
 import { api, normalizeApiList } from '../services/api';
-=======
-import { api } from '../services/api';
->>>>>>> Stashed changes
 import { UserModule } from '../types';
 import { colors, spacing, borderRadius } from '../theme';
 
@@ -68,11 +64,7 @@ export default function ModuleScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.detailHeader}>
         <HeaderBackButton onPress={() => navigation.goBack()} />
-<<<<<<< Updated upstream
         <Text style={styles.detailHeaderTitle}>Meu Modulo / Periodo</Text>
-=======
-        <Text style={styles.detailHeaderTitle}>Meu Módulo / Período</Text>
->>>>>>> Stashed changes
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -137,10 +129,6 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
-<<<<<<< Updated upstream
-=======
-    //gap: spacing.md,
->>>>>>> Stashed changes
   },
   detailHeaderTitle: {
     marginLeft: spacing.sm,
