@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -12,13 +12,16 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
 import { AppIcon, AppIconName, ChevronIcon, HeaderBackButton } from '../components/NavigationElements';
-import { colors, spacing, borderRadius } from '../theme';
+import { colors, spacing, borderRadius, lightColors } from '../theme';
+import { usePreferences } from '../contexts/PreferencesContext';
 
 type FeedbackScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Feedback'>;
 
 type FeedbackType = 'bug' | 'suggestion' | 'complaint' | 'praise';
 
 export default function FeedbackScreen() {
+  const { appColors, fontScale } = usePreferences();
+  const styles = useMemo(() => createStyles(appColors, fontScale), [appColors, fontScale]);
   const navigation = useNavigation<FeedbackScreenNavigationProp>();
   const [selectedType, setSelectedType] = useState<FeedbackType>('bug');
   const [selectedEvaluation, setSelectedEvaluation] = useState('');
@@ -119,7 +122,7 @@ export default function FeedbackScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: typeof lightColors, fontScale: number) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.bg,
@@ -134,7 +137,7 @@ const styles = StyleSheet.create({
   },
   detailHeaderTitle: {
     marginLeft: spacing.sm,
-    fontSize: 17,
+    fontSize: 17 * fontScale,
     fontWeight: 'bold',
     color: colors.white,
   },
@@ -142,7 +145,7 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
   },
   feedbackLabel: {
-    fontSize: 12,
+    fontSize: 12 * fontScale,
     fontWeight: '600',
     color: colors.text2,
     marginBottom: spacing.xs,
@@ -174,7 +177,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#EFF6FF',
   },
   typeBtnText: {
-    fontSize: 12,
+    fontSize: 12 * fontScale,
     fontWeight: '600',
     color: colors.text2,
     marginTop: spacing.xs,
@@ -196,7 +199,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   selectText: {
-    fontSize: 13,
+    fontSize: 13 * fontScale,
     color: colors.text,
   },
   feedbackTextarea: {
@@ -205,7 +208,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: borderRadius.sm,
     padding: spacing.md,
-    fontSize: 13,
+    fontSize: 13 * fontScale,
     color: colors.text,
     height: 120,
     marginBottom: spacing.md,
@@ -230,9 +233,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   submitButtonText: {
-    fontSize: 14,
+    fontSize: 14 * fontScale,
     fontWeight: 'bold',
     color: colors.white,
     marginLeft: spacing.sm,
   },
 });
+

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -14,7 +14,7 @@ import { RootStackParamList } from '../../App';
 import { AppIcon, HeaderBackButton } from '../components/NavigationElements';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { api } from '../services/api';
-import { colors, spacing, borderRadius } from '../theme';
+import { colors, spacing, borderRadius, lightColors } from '../theme';
 
 type FiltersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Filters'>;
 
@@ -32,7 +32,8 @@ const periodOptions: FilterOption[] = [
 
 export default function FiltersScreen() {
   const navigation = useNavigation<FiltersScreenNavigationProp>();
-  const { preferences, updateFilters, resetFilters } = usePreferences();
+  const { preferences, updateFilters, resetFilters, appColors, fontScale } = usePreferences();
+  const styles = useMemo(() => createStyles(appColors, fontScale), [appColors, fontScale]);
   const [selectedPeriod, setSelectedPeriod] = useState(preferences.filters.period);
   const [selectedProfessor, setSelectedProfessor] = useState(preferences.filters.professorId);
   const [selectedLab, setSelectedLab] = useState(preferences.filters.labId);
@@ -114,7 +115,7 @@ export default function FiltersScreen() {
 
         <View style={styles.filterGroup}>
           <View style={styles.filterGroupHeader}>
-            <AppIcon name="calendar" color={colors.primaryLight} size={17} />
+            <AppIcon name="calendar" color={appColors.primaryLight} size={17} />
             <Text style={styles.filterGroupTitle}>Período</Text>
           </View>
           {periodOptions.map((option) => (
@@ -141,7 +142,7 @@ export default function FiltersScreen() {
 
         <View style={styles.filterGroup}>
           <View style={styles.filterGroupHeader}>
-            <AppIcon name="user" color={colors.primaryLight} size={17} />
+            <AppIcon name="user" color={appColors.primaryLight} size={17} />
             <Text style={styles.filterGroupTitle}>Professor</Text>
           </View>
           {professorOptions.map((option) => (
@@ -168,7 +169,7 @@ export default function FiltersScreen() {
 
         <View style={styles.filterGroup}>
           <View style={styles.filterGroupHeader}>
-            <AppIcon name="lab" color={colors.primaryLight} size={17} />
+            <AppIcon name="lab" color={appColors.primaryLight} size={17} />
             <Text style={styles.filterGroupTitle}>Laboratório</Text>
           </View>
           {labOptions.map((option) => (
@@ -206,7 +207,7 @@ export default function FiltersScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: typeof lightColors, fontScale: number) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.bg,
@@ -221,7 +222,7 @@ const styles = StyleSheet.create({
   },
   detailHeaderTitle: {
     marginLeft: spacing.sm,
-    fontSize: 17,
+    fontSize: 17 * fontScale,
     fontWeight: 'bold',
     color: colors.white,
   },
@@ -238,7 +239,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   filterGroupTitle: {
-    fontSize: 12,
+    fontSize: 12 * fontScale,
     fontWeight: 'bold',
     color: colors.text,
     marginLeft: spacing.xs,
@@ -274,7 +275,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primaryLight,
   },
   filterOptionLabel: {
-    fontSize: 13,
+    fontSize: 13 * fontScale,
     fontWeight: '500',
     color: colors.text2,
   },
@@ -297,7 +298,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   clearButtonText: {
-    fontSize: 13,
+    fontSize: 13 * fontScale,
     fontWeight: '600',
     color: colors.text2,
   },
@@ -309,8 +310,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   applyButtonText: {
-    fontSize: 14,
+    fontSize: 14 * fontScale,
     fontWeight: 'bold',
     color: colors.white,
   },
 });
+

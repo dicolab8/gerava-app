@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -10,11 +10,14 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
 import { AppIcon, HeaderBackButton } from '../components/NavigationElements';
-import { colors, spacing, borderRadius } from '../theme';
+import { colors, spacing, borderRadius, lightColors } from '../theme';
+import { usePreferences } from '../contexts/PreferencesContext';
 
 type SuccessScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Success'>;
 
 export default function SuccessScreen() {
+  const { appColors, fontScale } = usePreferences();
+  const styles = useMemo(() => createStyles(appColors, fontScale), [appColors, fontScale]);
   const navigation = useNavigation<SuccessScreenNavigationProp>();
 
   return (
@@ -47,7 +50,7 @@ export default function SuccessScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: typeof lightColors, fontScale: number) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.bg,
@@ -62,7 +65,7 @@ const styles = StyleSheet.create({
   },
   detailHeaderTitle: {
     marginLeft: spacing.sm,
-    fontSize: 17,
+    fontSize: 17 * fontScale,
     fontWeight: 'bold',
     color: colors.white,
   },
@@ -96,13 +99,13 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 18 * fontScale,
     fontWeight: 'bold',
     color: colors.text,
     marginBottom: spacing.xs,
   },
   modalSub: {
-    fontSize: 13,
+    fontSize: 13 * fontScale,
     color: colors.text3,
     textAlign: 'center',
     lineHeight: 20,
@@ -116,8 +119,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backButtonText: {
-    fontSize: 14,
+    fontSize: 14 * fontScale,
     fontWeight: 'bold',
     color: colors.white,
   },
 });
+

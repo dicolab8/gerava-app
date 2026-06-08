@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -17,7 +17,7 @@ import { AppIcon, BottomNav, IconButton } from '../components/NavigationElements
 import { usePreferences } from '../contexts/PreferencesContext';
 import { api, normalizeApiList } from '../services/api';
 import { Evaluation } from '../types';
-import { colors, typography, spacing, borderRadius } from '../theme';
+import { colors, typography, spacing, borderRadius, lightColors } from '../theme';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -31,7 +31,8 @@ const normalizeText = (value?: string | number) =>
 
 export default function HomeScreen() {
   const navigation = useNavigation<HomeScreenNavigationProp>();
-  const { preferences } = usePreferences();
+  const { preferences, appColors, fontScale } = usePreferences();
+  const styles = useMemo(() => createStyles(appColors, fontScale), [appColors, fontScale]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedChip, setSelectedChip] = useState('Todas');
   const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
@@ -144,11 +145,11 @@ export default function HomeScreen() {
 
       <View style={styles.cardMeta}>
         <View style={styles.metaRow}>
-          <AppIcon name="user" color={colors.text3} size={15} />
+          <AppIcon name="user" color={appColors.text3} size={15} />
           <Text style={styles.metaText}>{item.professor_nome}</Text>
         </View>
         <View style={styles.metaRow}>
-          <AppIcon name="calendar" color={colors.text3} size={15} />
+          <AppIcon name="calendar" color={appColors.text3} size={15} />
           <Text style={styles.metaText}>
             {new Date(item.data).toLocaleDateString('pt-BR')} · {item.horario_ini.substring(0, 5)}
           </Text>
@@ -187,13 +188,13 @@ export default function HomeScreen() {
       {/* SEARCH */}
       <View style={styles.searchWrap}>
         <View style={styles.searchBar}>
-          <AppIcon name="search" color={colors.text3} size={18} />
+          <AppIcon name="search" color={appColors.text3} size={18} />
           <TextInput
             style={styles.searchInput}
             placeholder="Buscar avaliação..."
             value={searchQuery}
             onChangeText={setSearchQuery}
-            placeholderTextColor={colors.text3}
+            placeholderTextColor={appColors.text3}
           />
         </View>
       </View>
@@ -238,13 +239,13 @@ export default function HomeScreen() {
       {/* LIST */}
       {isLoading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
+          <ActivityIndicator size="large" color={appColors.primary} />
           <Text style={styles.loadingText}>Carregando avaliações...</Text>
         </View>
       ) : error ? (
         <View style={styles.errorContainer}>
           <View style={styles.errorIcon}>
-            <AppIcon name="warning" color={colors.danger} size={30} />
+            <AppIcon name="warning" color={appColors.danger} size={30} />
           </View>
           <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity style={styles.retryButton} onPress={fetchEvaluations}>
@@ -279,7 +280,7 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: typeof lightColors, fontScale: number) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.bg,
@@ -297,12 +298,12 @@ const styles = StyleSheet.create({
 
   headerTitle: {
     //fontFamily: typography.serif,
-    fontSize: 22,
+    fontSize: 22 * fontScale,
     color: colors.white,
   },
 
   headerSubtitle: {
-    fontSize: 12,
+    fontSize: 12 * fontScale,
     color: 'rgba(255,255,255,0.65)',
     marginTop: 2,
   },
@@ -336,7 +337,7 @@ const styles = StyleSheet.create({
 
   searchInput: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 14 * fontScale,
     fontFamily: typography.regular,
     color: colors.text,
     marginLeft: 10,
@@ -357,14 +358,14 @@ const styles = StyleSheet.create({
   },
 
   quickFiltersTitle: {
-    fontSize: 11,
+    fontSize: 11 * fontScale,
     fontWeight: 'bold',
     color: colors.text,
     textTransform: 'uppercase',
   },
 
   quickFiltersHint: {
-    fontSize: 10,
+    fontSize: 10 * fontScale,
     color: colors.text3,
   },
 
@@ -400,7 +401,7 @@ const styles = StyleSheet.create({
   },
 
   chipText: {
-    fontSize: 12,
+    fontSize: 12 * fontScale,
     fontWeight: '500',
     color: colors.text2,
   },
@@ -413,7 +414,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingTop: spacing.md,
     paddingBottom: spacing.xs,
-    fontSize: 11,
+    fontSize: 11 * fontScale,
     fontWeight: 'bold',
     color: colors.text3,
     textTransform: 'uppercase',
@@ -443,7 +444,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     flex: 1,
     fontWeight: 'bold',
-    fontSize: 15,
+    fontSize: 15 * fontScale,
     color: colors.text,
     lineHeight: 20,
     marginRight: 8,
@@ -468,7 +469,7 @@ const styles = StyleSheet.create({
   },
 
   tagText: {
-    fontSize: 10,
+    fontSize: 10 * fontScale,
     fontWeight: '600',
     color: '#1D4ED8',
   },
@@ -483,7 +484,7 @@ const styles = StyleSheet.create({
   },
 
   metaText: {
-    fontSize: 12,
+    fontSize: 12 * fontScale,
     color: colors.text2,
     marginLeft: 6,
   },
@@ -497,7 +498,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: spacing.sm,
     color: colors.text2,
-    fontSize: 14,
+    fontSize: 14 * fontScale,
   },
   errorContainer: {
     flex: 1,
@@ -507,7 +508,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: '#EF4444',
-    fontSize: 14,
+    fontSize: 14 * fontScale,
     textAlign: 'center',
     marginBottom: spacing.md,
   },
@@ -529,7 +530,7 @@ const styles = StyleSheet.create({
   retryButtonText: {
     color: colors.white,
     fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: 14 * fontScale,
   },
   emptyContainer: {
     flex: 1,
@@ -539,6 +540,6 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     color: colors.text3,
-    fontSize: 14,
+    fontSize: 14 * fontScale,
   },
 });

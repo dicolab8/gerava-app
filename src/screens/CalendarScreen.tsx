@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -15,7 +15,7 @@ import { AppIcon, BottomNav, ChevronIcon } from '../components/NavigationElement
 import { usePreferences } from '../contexts/PreferencesContext';
 import { api, normalizeApiList } from '../services/api';
 import { Evaluation } from '../types';
-import { colors, spacing, borderRadius } from '../theme';
+import { colors, spacing, borderRadius, lightColors } from '../theme';
 
 type CalendarScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Calendar'>;
 
@@ -30,7 +30,8 @@ interface CalendarDay {
 
 export default function CalendarScreen() {
   const navigation = useNavigation<CalendarScreenNavigationProp>();
-  const { preferences } = usePreferences();
+  const { preferences, appColors, fontScale } = usePreferences();
+  const styles = useMemo(() => createStyles(appColors, fontScale), [appColors, fontScale]);
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [selectedDate, setSelectedDate] = useState<{ day: number; month: number; year: number } | null>(null);
@@ -196,24 +197,24 @@ export default function CalendarScreen() {
           <Text style={styles.headerSubtitle}>{monthNames[currentMonth]} {currentYear}</Text>
         </View>
         <TouchableOpacity style={styles.headerIcon}>
-          <AppIcon name="calendar" color={colors.white} size={22} />
+          <AppIcon name="calendar" color={appColors.white} size={22} />
         </TouchableOpacity>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.calendarHeader}>
           <TouchableOpacity onPress={handlePrevMonth} style={styles.calNav}>
-            <ChevronIcon color={colors.text} size={14} />
+            <ChevronIcon color={appColors.text} size={14} />
           </TouchableOpacity>
           <Text style={styles.calMonth}>{monthNames[currentMonth]} {currentYear}</Text>
           <TouchableOpacity onPress={handleNextMonth} style={styles.calNav}>
-            <ChevronIcon direction="right" color={colors.text} size={14} />
+            <ChevronIcon direction="right" color={appColors.text} size={14} />
           </TouchableOpacity>
         </View>
 
         {isLoading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={colors.primary} />
+            <ActivityIndicator size="large" color={appColors.primary} />
             <Text style={styles.loadingText}>Carregando calendário...</Text>
           </View>
         ) : (
@@ -222,11 +223,10 @@ export default function CalendarScreen() {
               <Text key={index} style={styles.calDayName}>{day}</Text>
             ))}
             {calendarDays.map((day, index) => {
-              const isSelected =
-                selectedDate?.day === day.date &&
-                selectedDate?.month === day.month &&
-                selectedDate?.year === day.year;
-              const isHighlighted = day.isToday || isSelected;
+              const isActive =
+                selectedDateObj.day === day.date &&
+                selectedDateObj.month === day.month &&
+                selectedDateObj.year === day.year;
 
               return (
                 <TouchableOpacity
@@ -238,14 +238,13 @@ export default function CalendarScreen() {
                   <View
                     style={[
                       styles.calDayBox,
-                      day.isToday && styles.calDayToday,
-                      isSelected && styles.calDaySelected,
+                      isActive && styles.calDayActive,
                     ]}
                   >
                     <Text style={[
                       styles.calDayText,
                       !day.isCurrentMonth && styles.calDayOtherMonth,
-                      isHighlighted && styles.calDayTextHighlighted,
+                      isActive && styles.calDayTextActive,
                     ]}>
                       {day.date}
                     </Text>
@@ -253,7 +252,7 @@ export default function CalendarScreen() {
                       <View
                         style={[
                           styles.calDayDot,
-                          isHighlighted && styles.calDayDotHighlighted,
+                          isActive && styles.calDayDotActive,
                         ]}
                       />
                     )}
@@ -296,7 +295,7 @@ export default function CalendarScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: typeof lightColors, fontScale: number) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.bg,
@@ -312,12 +311,12 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: 'System',
-    fontSize: 22,
+    fontSize: 22 * fontScale,
     fontWeight: '500',
     color: colors.white,
   },
   headerSubtitle: {
-    fontSize: 12,
+    fontSize: 12 * fontScale,
     color: 'rgba(255,255,255,0.65)',
     marginTop: 2,
   },
@@ -344,7 +343,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   calMonth: {
-    fontSize: 16,
+    fontSize: 16 * fontScale,
     fontWeight: 'bold',
     color: colors.text,
   },
@@ -357,7 +356,7 @@ const styles = StyleSheet.create({
   calDayName: {
     width: '14.28%',
     textAlign: 'center',
-    fontSize: 10,
+    fontSize: 10 * fontScale,
     fontWeight: 'bold',
     color: colors.text3,
     paddingVertical: spacing.xs,
@@ -377,18 +376,15 @@ const styles = StyleSheet.create({
     position: 'relative',
     borderRadius: borderRadius.sm,
   },
-  calDayToday: {
+  calDayActive: {
     backgroundColor: colors.primary,
   },
-  calDaySelected: {
-    backgroundColor: colors.primaryLight,
-  },
   calDayText: {
-    fontSize: 12,
+    fontSize: 12 * fontScale,
     fontWeight: '500',
     color: colors.text2,
   },
-  calDayTextHighlighted: {
+  calDayTextActive: {
     color: colors.white,
     fontWeight: 'bold',
   },
@@ -403,7 +399,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accent,
     borderRadius: 2,
   },
-  calDayDotHighlighted: {
+  calDayDotActive: {
     backgroundColor: colors.white,
   },
   eventsHeader: {
@@ -412,7 +408,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xs,
   },
   eventsTitle: {
-    fontSize: 11,
+    fontSize: 11 * fontScale,
     fontWeight: 'bold',
     color: colors.text3,
     textTransform: 'uppercase',
@@ -433,12 +429,12 @@ const styles = StyleSheet.create({
     borderLeftColor: colors.success,
   },
   eventTitle: {
-    fontSize: 13,
+    fontSize: 13 * fontScale,
     fontWeight: 'bold',
     color: colors.text,
   },
   eventSub: {
-    fontSize: 11,
+    fontSize: 11 * fontScale,
     color: colors.text3,
     marginTop: 2,
   },
@@ -451,12 +447,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyEventsTitle: {
-    fontSize: 13,
+    fontSize: 13 * fontScale,
     fontWeight: 'bold',
     color: colors.text,
   },
   emptyEventsText: {
-    fontSize: 11,
+    fontSize: 11 * fontScale,
     color: colors.text3,
     marginTop: 4,
     textAlign: 'center',
@@ -469,6 +465,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: spacing.sm,
     color: colors.text3,
-    fontSize: 14,
+    fontSize: 14 * fontScale,
   },
 });
+

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -15,7 +15,8 @@ import { RootStackParamList } from '../../App';
 import { AppIcon, ChevronIcon } from '../components/NavigationElements';
 import { api, normalizeApiList } from '../services/api';
 import { Evaluation } from '../types';
-import { colors, spacing, borderRadius } from '../theme';
+import { colors, spacing, borderRadius, lightColors } from '../theme';
+import { usePreferences } from '../contexts/PreferencesContext';
 
 type SearchScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Search'>;
 
@@ -26,6 +27,8 @@ const normalizeText = (value?: string | number) =>
     .toLowerCase();
 
 export default function SearchScreen() {
+  const { appColors, fontScale } = usePreferences();
+  const styles = useMemo(() => createStyles(appColors, fontScale), [appColors, fontScale]);
   const navigation = useNavigation<SearchScreenNavigationProp>();
   const [searchQuery, setSearchQuery] = useState('');
   const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
@@ -192,7 +195,7 @@ export default function SearchScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: typeof lightColors, fontScale: number) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.bg,
@@ -207,7 +210,7 @@ const styles = StyleSheet.create({
   },
   appHeaderTitle: {
     fontFamily: 'System',
-    fontSize: 22,
+    fontSize: 22 * fontScale,
     fontWeight: '500',
     color: colors.white,
   },
@@ -244,7 +247,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 14 * fontScale,
     color: colors.primary,
     marginLeft: 10,
   },
@@ -256,7 +259,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   resultInfoText: {
-    fontSize: 12,
+    fontSize: 12 * fontScale,
     color: colors.text3,
   },
   resultInfoStrong: {
@@ -290,7 +293,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     flex: 1,
     fontWeight: 'bold',
-    fontSize: 15,
+    fontSize: 15 * fontScale,
     color: colors.text,
     lineHeight: 20,
   },
@@ -308,7 +311,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accentSoft,
   },
   tagText: {
-    fontSize: 10,
+    fontSize: 10 * fontScale,
     fontWeight: '600',
     color: '#92400E',
   },
@@ -322,7 +325,7 @@ const styles = StyleSheet.create({
     marginTop: 3,
   },
   metaText: {
-    fontSize: 12,
+    fontSize: 12 * fontScale,
     color: colors.text2,
     marginLeft: 6,
   },
@@ -341,13 +344,13 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   emptyTitle: {
-    fontSize: 17,
+    fontSize: 17 * fontScale,
     fontWeight: 'bold',
     color: colors.text,
     marginBottom: spacing.xs,
   },
   emptySub: {
-    fontSize: 13,
+    fontSize: 13 * fontScale,
     color: colors.text3,
     textAlign: 'center',
   },
@@ -356,7 +359,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   recentTitle: {
-    fontSize: 12,
+    fontSize: 12 * fontScale,
     color: colors.text3,
     marginBottom: spacing.sm,
   },
@@ -375,7 +378,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   recentChipText: {
-    fontSize: 12,
+    fontSize: 12 * fontScale,
     fontWeight: '500',
     color: colors.text2,
   },
@@ -387,6 +390,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: spacing.sm,
     color: colors.text3,
-    fontSize: 14,
+    fontSize: 14 * fontScale,
   },
 });
+

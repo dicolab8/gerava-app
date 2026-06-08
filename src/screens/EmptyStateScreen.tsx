@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -12,13 +12,16 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
 import { AppIcon, IconButton } from '../components/NavigationElements';
-import { colors, spacing, borderRadius } from '../theme';
+import { colors, spacing, borderRadius, lightColors } from '../theme';
+import { usePreferences } from '../contexts/PreferencesContext';
 
 type EmptyStateScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'EmptyState'>;
 
 const chips = ['Todas', 'Esta semana', 'Módulo 10'];
 
 export default function EmptyStateScreen() {
+  const { appColors, fontScale } = usePreferences();
+  const styles = useMemo(() => createStyles(appColors, fontScale), [appColors, fontScale]);
   const navigation = useNavigation<EmptyStateScreenNavigationProp>();
   const [searchQuery, setSearchQuery] = useState('cirurgia cardíaca');
   const [selectedChip, setSelectedChip] = useState('Todas');
@@ -90,7 +93,7 @@ export default function EmptyStateScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: typeof lightColors, fontScale: number) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.bg,
@@ -106,12 +109,12 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: 'System',
-    fontSize: 22,
+    fontSize: 22 * fontScale,
     fontWeight: '500',
     color: colors.white,
   },
   headerSubtitle: {
-    fontSize: 12,
+    fontSize: 12 * fontScale,
     color: 'rgba(255,255,255,0.65)',
     marginTop: 2,
   },
@@ -144,7 +147,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 14 * fontScale,
     color: colors.text,
     marginLeft: 10,
   },
@@ -171,7 +174,7 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
   },
   chipText: {
-    fontSize: 12,
+    fontSize: 12 * fontScale,
     fontWeight: '500',
     color: colors.text2,
   },
@@ -194,13 +197,13 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   emptyTitle: {
-    fontSize: 17,
+    fontSize: 17 * fontScale,
     fontWeight: 'bold',
     color: colors.text,
     marginBottom: spacing.xs,
   },
   emptySub: {
-    fontSize: 13,
+    fontSize: 13 * fontScale,
     color: colors.text3,
     textAlign: 'center',
     lineHeight: 20,
@@ -217,8 +220,9 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.sm,
   },
   clearButtonText: {
-    fontSize: 13,
+    fontSize: 13 * fontScale,
     fontWeight: '600',
     color: colors.white,
   },
 });
+

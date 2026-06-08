@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppIcon, AppIconName, BottomNav, ChevronIcon } from '../components/NavigationElements';
-import { colors, spacing, borderRadius } from '../theme';
+import { colors, spacing, borderRadius, lightColors } from '../theme';
+import { usePreferences } from '../contexts/PreferencesContext';
 
 const stats = [
   { label: 'Avaliações', value: '148' },
@@ -24,6 +25,9 @@ const infoRows: { label: string; value: string; icon: AppIconName; tone: string 
 ];
 
 export default function AboutScreen() {
+  const { appColors, fontScale } = usePreferences();
+  const styles = useMemo(() => createStyles(appColors, fontScale), [appColors, fontScale]);
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
@@ -116,7 +120,7 @@ export default function AboutScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: typeof lightColors, fontScale: number) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.bg,
@@ -146,7 +150,7 @@ const styles = StyleSheet.create({
   },
   logoText: {
     fontFamily: 'System',
-    fontSize: 28,
+    fontSize: 28 * fontScale,
     fontWeight: '700',
     color: colors.white,
   },
@@ -156,17 +160,17 @@ const styles = StyleSheet.create({
   },
   appName: {
     fontFamily: 'System',
-    fontSize: 25,
+    fontSize: 25 * fontScale,
     fontWeight: '700',
     color: colors.white,
   },
   version: {
-    fontSize: 12,
+    fontSize: 12 * fontScale,
     color: 'rgba(255,255,255,0.72)',
     marginTop: 2,
   },
   heroDescription: {
-    fontSize: 13,
+    fontSize: 13 * fontScale,
     color: 'rgba(255,255,255,0.82)',
     lineHeight: 20,
     marginTop: spacing.md,
@@ -189,12 +193,12 @@ const styles = StyleSheet.create({
     marginRight: 0,
   },
   statNumber: {
-    fontSize: 22,
+    fontSize: 22 * fontScale,
     fontWeight: 'bold',
     color: colors.white,
   },
   statLabel: {
-    fontSize: 10,
+    fontSize: 10 * fontScale,
     color: 'rgba(255,255,255,0.76)',
     marginTop: 2,
   },
@@ -208,7 +212,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   sectionTitle: {
-    fontSize: 11,
+    fontSize: 11 * fontScale,
     fontWeight: 'bold',
     color: colors.text3,
     textTransform: 'uppercase',
@@ -220,7 +224,7 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
   },
   sectionPillText: {
-    fontSize: 10,
+    fontSize: 10 * fontScale,
     fontWeight: '700',
     color: colors.primaryLight,
   },
@@ -253,11 +257,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   infoLabel: {
-    fontSize: 12,
+    fontSize: 12 * fontScale,
     color: colors.text3,
   },
   infoValue: {
-    fontSize: 13,
+    fontSize: 13 * fontScale,
     fontWeight: '700',
     color: colors.text,
     marginTop: 2,
@@ -285,12 +289,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   privacyTitle: {
-    fontSize: 13,
+    fontSize: 13 * fontScale,
     fontWeight: '700',
     color: colors.text,
   },
   privacySub: {
-    fontSize: 11,
+    fontSize: 11 * fontScale,
     color: colors.text3,
     marginTop: 2,
   },
@@ -304,7 +308,7 @@ const styles = StyleSheet.create({
   },
   noteText: {
     flex: 1,
-    fontSize: 12,
+    fontSize: 12 * fontScale,
     color: colors.text2,
     lineHeight: 19,
     marginLeft: spacing.sm,

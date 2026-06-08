@@ -11,6 +11,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../App';
 import { colors, spacing, borderRadius } from '../theme';
+import { usePreferences } from '../contexts/PreferencesContext';
 
 type BottomNavRoute = 'Home' | 'Calendar' | 'Favorites' | 'About';
 type NavIconName = 'home' | 'calendar' | 'favorite' | 'info';
@@ -49,13 +50,15 @@ const tabs: { route: BottomNavRoute; label: string; icon: NavIconName }[] = [
 
 export function ChevronIcon({
   direction = 'left',
-  color = colors.white,
+  color,
   size = 18,
 }: {
   direction?: 'left' | 'right' | 'down';
   color?: string;
   size?: number;
 }) {
+  const { appColors } = usePreferences();
+  const iconColor = color || appColors.white;
   const parentRotation =
     direction === 'right' ? '180deg' : direction === 'down' ? '-90deg' : '0deg';
 
@@ -75,7 +78,7 @@ export function ChevronIcon({
           styles.chevronLine,
           {
             width: size * 0.56,
-            backgroundColor: color,
+            backgroundColor: iconColor,
             top: size * 0.36,
             left: size * 0.22,
             transform: [{ rotate: '-45deg' }],
@@ -87,7 +90,7 @@ export function ChevronIcon({
           styles.chevronLine,
           {
             width: size * 0.56,
-            backgroundColor: color,
+            backgroundColor: iconColor,
             top: size * 0.62,
             left: size * 0.22,
             transform: [{ rotate: '45deg' }],
@@ -105,12 +108,14 @@ export function HeaderBackButton({
   onPress: () => void;
   style?: StyleProp<ViewStyle>;
 }) {
+  const { appColors } = usePreferences();
+
   return (
     <TouchableOpacity
       accessibilityRole="button"
       accessibilityLabel="Voltar"
       onPress={onPress}
-      style={[styles.headerBackButton, style]}
+      style={[styles.headerBackButton, { backgroundColor: 'rgba(255,255,255,0.15)' }, style]}
     >
       <ChevronIcon />
     </TouchableOpacity>
@@ -130,6 +135,8 @@ export function IconButton({
   accessibilityLabel: string;
   style?: StyleProp<ViewStyle>;
 }) {
+  const { appColors } = usePreferences();
+
   return (
     <TouchableOpacity
       accessibilityRole="button"
@@ -138,10 +145,10 @@ export function IconButton({
       style={[styles.headerIconButton, style]}
       activeOpacity={0.72}
     >
-      <AppIcon name={name} color={colors.white} size={22} />
+      <AppIcon name={name} color={appColors.white} size={22} />
       {badge !== undefined && (
-        <View style={styles.iconBadge}>
-          <Text style={styles.iconBadgeText}>{badge}</Text>
+        <View style={[styles.iconBadge, { backgroundColor: appColors.accent }]}>
+          <Text style={[styles.iconBadgeText, { color: appColors.text }]}>{badge}</Text>
         </View>
       )}
     </TouchableOpacity>
@@ -150,26 +157,28 @@ export function IconButton({
 
 export function AppIcon({
   name,
-  color = colors.primary,
+  color,
   size = 24,
 }: {
   name: AppIconName;
   color?: string;
   size?: number;
 }) {
+  const { appColors } = usePreferences();
+  const iconColor = color || appColors.primary;
   const stroke = Math.max(2, size * 0.09);
   const thin = Math.max(1.5, size * 0.07);
 
   if (name === 'home' || name === 'calendar' || name === 'favorite' || name === 'info') {
-    return <BottomNavGlyph name={name} active={false} color={color} />;
+    return <BottomNavGlyph name={name} active={false} color={iconColor} />;
   }
 
   if (name === 'mail' || name === 'send') {
     return (
       <View style={[styles.iconCanvas, { width: size, height: size }]}>
-        <View style={[styles.mailBody, { borderColor: color, borderWidth: stroke }]} />
-        <View style={[styles.mailFlapLeft, { backgroundColor: color, height: thin }]} />
-        <View style={[styles.mailFlapRight, { backgroundColor: color, height: thin }]} />
+        <View style={[styles.mailBody, { borderColor: iconColor, borderWidth: stroke }]} />
+        <View style={[styles.mailFlapLeft, { backgroundColor: iconColor, height: thin }]} />
+        <View style={[styles.mailFlapRight, { backgroundColor: iconColor, height: thin }]} />
       </View>
     );
   }
@@ -177,14 +186,14 @@ export function AppIcon({
   if (name === 'settings') {
     return (
       <View style={[styles.iconCanvas, { width: size, height: size }]}>
-        <View style={[styles.gearRing, { borderColor: color, borderWidth: stroke }]} />
+        <View style={[styles.gearRing, { borderColor: iconColor, borderWidth: stroke }]} />
         {[0, 1, 2, 3].map((index) => (
           <View
             key={index}
             style={[
               styles.gearTooth,
               {
-                backgroundColor: color,
+                backgroundColor: iconColor,
                 transform: [{ rotate: `${index * 45}deg` }],
               },
             ]}
@@ -197,8 +206,8 @@ export function AppIcon({
   if (name === 'search') {
     return (
       <View style={[styles.iconCanvas, { width: size, height: size }]}>
-        <View style={[styles.searchCircle, { borderColor: color, borderWidth: stroke }]} />
-        <View style={[styles.searchHandle, { backgroundColor: color, height: stroke }]} />
+        <View style={[styles.searchCircle, { borderColor: iconColor, borderWidth: stroke }]} />
+        <View style={[styles.searchHandle, { backgroundColor: iconColor, height: stroke }]} />
       </View>
     );
   }
@@ -206,8 +215,8 @@ export function AppIcon({
   if (name === 'user') {
     return (
       <View style={[styles.iconCanvas, { width: size, height: size }]}>
-        <View style={[styles.userHead, { borderColor: color, borderWidth: stroke }]} />
-        <View style={[styles.userBody, { borderColor: color, borderWidth: stroke }]} />
+        <View style={[styles.userHead, { borderColor: iconColor, borderWidth: stroke }]} />
+        <View style={[styles.userBody, { borderColor: iconColor, borderWidth: stroke }]} />
       </View>
     );
   }
@@ -215,9 +224,9 @@ export function AppIcon({
   if (name === 'clock') {
     return (
       <View style={[styles.iconCanvas, { width: size, height: size }]}>
-        <View style={[styles.clockCircle, { borderColor: color, borderWidth: stroke }]} />
-        <View style={[styles.clockHandHour, { backgroundColor: color }]} />
-        <View style={[styles.clockHandMinute, { backgroundColor: color }]} />
+        <View style={[styles.clockCircle, { borderColor: iconColor, borderWidth: stroke }]} />
+        <View style={[styles.clockHandHour, { backgroundColor: iconColor }]} />
+        <View style={[styles.clockHandMinute, { backgroundColor: iconColor }]} />
       </View>
     );
   }
@@ -225,8 +234,8 @@ export function AppIcon({
   if (name === 'lab') {
     return (
       <View style={[styles.iconCanvas, { width: size, height: size }]}>
-        <View style={[styles.labTube, { borderColor: color, borderWidth: stroke }]} />
-        <View style={[styles.labLiquid, { backgroundColor: color }]} />
+        <View style={[styles.labTube, { borderColor: iconColor, borderWidth: stroke }]} />
+        <View style={[styles.labLiquid, { backgroundColor: iconColor }]} />
       </View>
     );
   }
@@ -234,9 +243,9 @@ export function AppIcon({
   if (name === 'note' || name === 'book') {
     return (
       <View style={[styles.iconCanvas, { width: size, height: size }]}>
-        <View style={[styles.noteSheet, { borderColor: color, borderWidth: stroke }]}>
-          <View style={[styles.noteLine, { backgroundColor: color }]} />
-          <View style={[styles.noteLine, { backgroundColor: color, width: '48%' }]} />
+        <View style={[styles.noteSheet, { borderColor: iconColor, borderWidth: stroke }]}>
+          <View style={[styles.noteLine, { backgroundColor: iconColor }]} />
+          <View style={[styles.noteLine, { backgroundColor: iconColor, width: '48%' }]} />
         </View>
       </View>
     );
@@ -245,8 +254,8 @@ export function AppIcon({
   if (name === 'phone') {
     return (
       <View style={[styles.iconCanvas, { width: size, height: size }]}>
-        <View style={[styles.phoneBody, { borderColor: color, borderWidth: stroke }]} />
-        <View style={[styles.phoneDot, { backgroundColor: color }]} />
+        <View style={[styles.phoneBody, { borderColor: iconColor, borderWidth: stroke }]} />
+        <View style={[styles.phoneDot, { backgroundColor: iconColor }]} />
       </View>
     );
   }
@@ -254,8 +263,8 @@ export function AppIcon({
   if (name === 'refresh') {
     return (
       <View style={[styles.iconCanvas, { width: size, height: size }]}>
-        <View style={[styles.refreshArc, { borderColor: color, borderWidth: stroke }]} />
-        <View style={[styles.refreshHead, { borderLeftColor: color }]} />
+        <View style={[styles.refreshArc, { borderColor: iconColor, borderWidth: stroke }]} />
+        <View style={[styles.refreshHead, { borderLeftColor: iconColor }]} />
       </View>
     );
   }
@@ -263,8 +272,8 @@ export function AppIcon({
   if (name === 'school') {
     return (
       <View style={[styles.iconCanvas, { width: size, height: size }]}>
-        <View style={[styles.schoolRoof, { borderBottomColor: color }]} />
-        <View style={[styles.schoolBody, { borderColor: color, borderWidth: stroke }]} />
+        <View style={[styles.schoolRoof, { borderBottomColor: iconColor }]} />
+        <View style={[styles.schoolBody, { borderColor: iconColor, borderWidth: stroke }]} />
       </View>
     );
   }
@@ -272,8 +281,8 @@ export function AppIcon({
   if (name === 'privacy') {
     return (
       <View style={[styles.iconCanvas, { width: size, height: size }]}>
-        <View style={[styles.privacyPlate, { borderColor: color, borderWidth: stroke }]} />
-        <View style={[styles.privacyStem, { backgroundColor: color }]} />
+        <View style={[styles.privacyPlate, { borderColor: iconColor, borderWidth: stroke }]} />
+        <View style={[styles.privacyStem, { backgroundColor: iconColor }]} />
       </View>
     );
   }
@@ -281,9 +290,9 @@ export function AppIcon({
   if (name === 'palette') {
     return (
       <View style={[styles.iconCanvas, { width: size, height: size }]}>
-        <View style={[styles.paletteShape, { borderColor: color, borderWidth: stroke }]}>
-          <View style={[styles.paletteDot, { backgroundColor: color }]} />
-          <View style={[styles.paletteDot, { backgroundColor: color }]} />
+        <View style={[styles.paletteShape, { borderColor: iconColor, borderWidth: stroke }]}>
+          <View style={[styles.paletteDot, { backgroundColor: iconColor }]} />
+          <View style={[styles.paletteDot, { backgroundColor: iconColor }]} />
         </View>
       </View>
     );
@@ -292,8 +301,8 @@ export function AppIcon({
   if (name === 'bell') {
     return (
       <View style={[styles.iconCanvas, { width: size, height: size }]}>
-        <View style={[styles.bellBody, { borderColor: color, borderWidth: stroke }]} />
-        <View style={[styles.bellClapper, { backgroundColor: color }]} />
+        <View style={[styles.bellBody, { borderColor: iconColor, borderWidth: stroke }]} />
+        <View style={[styles.bellClapper, { backgroundColor: iconColor }]} />
       </View>
     );
   }
@@ -301,8 +310,8 @@ export function AppIcon({
   if (name === 'chat') {
     return (
       <View style={[styles.iconCanvas, { width: size, height: size }]}>
-        <View style={[styles.chatBubble, { borderColor: color, borderWidth: stroke }]} />
-        <View style={[styles.chatTail, { borderTopColor: color }]} />
+        <View style={[styles.chatBubble, { borderColor: iconColor, borderWidth: stroke }]} />
+        <View style={[styles.chatTail, { borderTopColor: iconColor }]} />
       </View>
     );
   }
@@ -310,7 +319,7 @@ export function AppIcon({
   if (name === 'warning') {
     return (
       <View style={[styles.iconCanvas, { width: size, height: size }]}>
-        <View style={[styles.warningTriangle, { borderBottomColor: color }]} />
+        <View style={[styles.warningTriangle, { borderBottomColor: iconColor }]} />
         <View style={[styles.warningStem, { backgroundColor: colors.white }]} />
       </View>
     );
@@ -319,8 +328,8 @@ export function AppIcon({
   if (name === 'check' || name === 'praise') {
     return (
       <View style={[styles.iconCanvas, { width: size, height: size }]}>
-        <View style={[styles.checkShort, { backgroundColor: color }]} />
-        <View style={[styles.checkLong, { backgroundColor: color }]} />
+        <View style={[styles.checkShort, { backgroundColor: iconColor }]} />
+        <View style={[styles.checkLong, { backgroundColor: iconColor }]} />
       </View>
     );
   }
@@ -328,8 +337,8 @@ export function AppIcon({
   if (name === 'bug' || name === 'complaint') {
     return (
       <View style={[styles.iconCanvas, { width: size, height: size }]}>
-        <View style={[styles.bugBody, { borderColor: color, borderWidth: stroke }]} />
-        <View style={[styles.bugLine, { backgroundColor: color }]} />
+        <View style={[styles.bugBody, { borderColor: iconColor, borderWidth: stroke }]} />
+        <View style={[styles.bugLine, { backgroundColor: iconColor }]} />
       </View>
     );
   }
@@ -337,16 +346,16 @@ export function AppIcon({
   if (name === 'idea') {
     return (
       <View style={[styles.iconCanvas, { width: size, height: size }]}>
-        <View style={[styles.ideaBulb, { borderColor: color, borderWidth: stroke }]} />
-        <View style={[styles.ideaBase, { backgroundColor: color }]} />
+        <View style={[styles.ideaBulb, { borderColor: iconColor, borderWidth: stroke }]} />
+        <View style={[styles.ideaBase, { backgroundColor: iconColor }]} />
       </View>
     );
   }
 
   return (
     <View style={[styles.iconCanvas, { width: size, height: size }]}>
-      <View style={[styles.closeLine, { backgroundColor: color }]} />
-      <View style={[styles.closeLine, { backgroundColor: color, transform: [{ rotate: '-45deg' }] }]} />
+      <View style={[styles.closeLine, { backgroundColor: iconColor }]} />
+      <View style={[styles.closeLine, { backgroundColor: iconColor, transform: [{ rotate: '-45deg' }] }]} />
     </View>
   );
 }
@@ -354,9 +363,15 @@ export function AppIcon({
 export function BottomNav({ active }: { active: BottomNavRoute }) {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { appColors, fontScale } = usePreferences();
 
   return (
-    <View style={styles.bottomNav}>
+    <View
+      style={[
+        styles.bottomNav,
+        { backgroundColor: appColors.surface, borderTopColor: appColors.border },
+      ]}
+    >
       {tabs.map((tab) => {
         const isActive = active === tab.route;
 
@@ -365,13 +380,16 @@ export function BottomNav({ active }: { active: BottomNavRoute }) {
             key={tab.route}
             accessibilityRole="button"
             accessibilityLabel={tab.label}
-            style={[styles.bottomNavItem, isActive && styles.bottomNavItemActive]}
+            style={[
+              styles.bottomNavItem,
+              isActive && { backgroundColor: appColors.surface2 },
+            ]}
             onPress={() => navigation.navigate(tab.route)}
           >
             <View
               style={[
                 styles.navIconShell,
-                isActive && styles.navIconShellActive,
+                isActive && { backgroundColor: appColors.surface },
               ]}
             >
               <BottomNavGlyph name={tab.icon} active={isActive} />
@@ -379,6 +397,10 @@ export function BottomNav({ active }: { active: BottomNavRoute }) {
             <Text
               style={[
                 styles.bottomNavLabel,
+                {
+                  color: isActive ? appColors.primaryLight : appColors.text3,
+                  fontSize: 10 * fontScale,
+                },
                 isActive && styles.bottomNavLabelActive,
               ]}
             >
@@ -400,8 +422,9 @@ function BottomNavGlyph({
   active: boolean;
   color?: string;
 }) {
-  const ink = color || (active ? colors.primary : colors.text3);
-  const fill = active ? colors.primaryLight : ink;
+  const { appColors } = usePreferences();
+  const ink = color || (active ? appColors.primary : appColors.text3);
+  const fill = active ? appColors.primaryLight : ink;
 
   if (name === 'home') {
     return (
@@ -923,3 +946,4 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
 });
+

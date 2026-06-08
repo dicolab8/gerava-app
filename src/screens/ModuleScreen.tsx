@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -15,13 +15,14 @@ import { AppIcon, HeaderBackButton } from '../components/NavigationElements';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { api, normalizeApiList } from '../services/api';
 import { UserModule } from '../types';
-import { colors, spacing, borderRadius } from '../theme';
+import { colors, spacing, borderRadius, lightColors } from '../theme';
 
 type ModuleScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Module'>;
 
 export default function ModuleScreen() {
   const navigation = useNavigation<ModuleScreenNavigationProp>();
-  const { preferences, updatePreferences } = usePreferences();
+  const { preferences, updatePreferences, appColors, fontScale } = usePreferences();
+  const styles = useMemo(() => createStyles(appColors, fontScale), [appColors, fontScale]);
   const [modules, setModules] = useState<UserModule[]>([]);
   const [selectedModuleId, setSelectedModuleId] = useState<number | string | null>(preferences.selectedModuleId);
   const [isLoading, setIsLoading] = useState(true);
@@ -74,7 +75,7 @@ export default function ModuleScreen() {
 
         {isLoading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={colors.primary} />
+            <ActivityIndicator size="large" color={appColors.primary} />
             <Text style={styles.loadingText}>Carregando modulos...</Text>
           </View>
         ) : (
@@ -101,7 +102,7 @@ export default function ModuleScreen() {
                   {module.periodo && <Text style={styles.modulePeriod}>{module.periodo}</Text>}
                 </View>
                 {selectedModuleId === module.id && (
-                  <AppIcon name="check" color={colors.primaryLight} size={22} />
+                  <AppIcon name="check" color={appColors.primaryLight} size={22} />
                 )}
               </TouchableOpacity>
             ))}
@@ -118,7 +119,7 @@ export default function ModuleScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: typeof lightColors, fontScale: number) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.bg,
@@ -132,13 +133,13 @@ const styles = StyleSheet.create({
   },
   detailHeaderTitle: {
     marginLeft: spacing.sm,
-    fontSize: 17,
+    fontSize: 17 * fontScale,
     fontWeight: 'bold',
     color: colors.white,
   },
   description: {
     padding: spacing.md,
-    fontSize: 13,
+    fontSize: 13 * fontScale,
     color: colors.text2,
     lineHeight: 20,
   },
@@ -171,7 +172,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primaryLight,
   },
   moduleNumText: {
-    fontSize: 14,
+    fontSize: 14 * fontScale,
     fontWeight: 'bold',
     color: colors.white,
   },
@@ -180,12 +181,12 @@ const styles = StyleSheet.create({
     marginLeft: spacing.md,
   },
   moduleName: {
-    fontSize: 14,
+    fontSize: 14 * fontScale,
     fontWeight: '600',
     color: colors.text,
   },
   modulePeriod: {
-    fontSize: 12,
+    fontSize: 12 * fontScale,
     color: colors.text3,
     marginTop: 2,
   },
@@ -199,7 +200,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   confirmButtonText: {
-    fontSize: 14,
+    fontSize: 14 * fontScale,
     fontWeight: 'bold',
     color: colors.white,
   },
@@ -211,6 +212,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: spacing.sm,
     color: colors.text3,
-    fontSize: 14,
+    fontSize: 14 * fontScale,
   },
 });
+
